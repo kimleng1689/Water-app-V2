@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="km" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ស្ថានីយទឹកស្អាត AquaPure | ប្រព័ន្ធផ្គត់ផ្គង់ទឹកតាមទុយោផ្ទាល់ & គីឡូទឹក (1 m³ = 2,500 ៛)</title>
+  <!-- Google Fonts: Kantumruy Pro (Khmer), Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Kantumruy+Pro:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Canvas Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <!-- Application Stylesheet -->
+  <link rel="stylesheet" href="src/css/styles.css">
+</head>
+<body>
+  <div id="app" class="app-container">
+    <!-- Top Navigation Header -->
+    <header class="app-header">
+      <div class="header-content">
+        <div class="brand" onclick="switchTab('home')" style="cursor: pointer;">
+          <div class="brand-icon">
+            <i data-lucide="git-merge"></i>
+          </div>
+          <div class="brand-text">
+            <span class="brand-name">ស្ថានីយទឹកស្អាត AquaPure</span>
+            <span class="brand-tag">ប្រព័ន្ធផ្គត់ផ្គង់ទឹកតាមទុយោផ្ទាល់ • 1 m³ = 2,500 ៛ • រាជធានីភ្នំពេញ</span>
+          </div>
+        </div>
+
+        <!-- Live Water Network Status Bar -->
+        <div class="purity-status-bar" title="ស្ថានភាពសម្ពាធទឹក & តម្លៃទឹកស្អាត">
+          <div class="purity-item">
+            <i data-lucide="coins" class="text-cyan"></i>
+            <span>តម្លៃទឹក: <strong class="text-cyan">1 m³ = 2,500 ៛</strong></span>
+          </div>
+          <div class="purity-divider"></div>
+          <div class="purity-item">
+            <i data-lucide="home" class="text-cyan"></i>
+            <span>ភ្ជាប់តាមផ្ទះ: <strong>450,000 ៛</strong></span>
+          </div>
+          <div class="purity-divider"></div>
+          <div class="purity-item">
+            <i data-lucide="building-2" class="text-cyan"></i>
+            <span>រោងចក្រ: <strong>1,500,000 ៛</strong></span>
+          </div>
+          <div class="purity-divider"></div>
+          <div class="purity-item">
+            <i data-lucide="gauge" class="text-green"></i>
+            <span>សម្ពាធ 3.2 Bar</span>
+          </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="nav-tabs">
+          <button class="nav-btn active" id="tab-home" onclick="switchTab('home')">
+            <i data-lucide="layout-grid"></i>
+            <span>បណ្តាញទុយោទឹក</span>
+          </button>
+          <button class="nav-btn" id="tab-checkout" onclick="switchTab('checkout')">
+            <i data-lucide="git-merge"></i>
+            <span>ភ្ជាប់ទុយោ / បង់ថ្លៃទឹក</span>
+          </button>
+          <button class="nav-btn" id="tab-company" onclick="switchTab('company')">
+            <i data-lucide="building-2"></i>
+            <span>អំពីក្រុមហ៊ុន</span>
+          </button>
+          <button class="nav-btn" id="tab-admin" onclick="switchTab('admin')">
+            <i data-lucide="layout-dashboard"></i>
+            <span>ផ្ទាំងគ្រប់គ្រង</span>
+            <span class="badge-count" id="customer-count-badge">0</span>
+          </button>
+        </nav>
+
+        <!-- Header Actions & Auth -->
+        <div class="header-actions">
+          <div id="auth-header-section">
+            <button class="btn btn-secondary btn-sm" id="btn-open-login" onclick="openLoginModal()">
+              <i data-lucide="lock"></i> ចូលប្រព័ន្ធ
+            </button>
+            <div id="logged-in-badge" class="user-pill hidden">
+              <span class="user-avatar"><i data-lucide="shield"></i></span>
+              <span class="user-name" id="user-display-name">ប្រធានប្រតិបត្តិការ</span>
+              <span class="user-role" id="user-role">Administrator</span>
+              <button class="btn-logout" onclick="logoutAdmin()" title="ចាកចេញ (Sign Out)">
+                <i data-lucide="log-out"></i>
+              </button>
+            </div>
+          </div>
+
+          <button class="btn-icon" id="theme-toggle" title="ប្តូរពន្លឺ / ងងឹត (Toggle Theme)" onclick="toggleTheme()">
+            <i data-lucide="moon" id="theme-icon"></i>
+          </button>
+          <button class="btn btn-secondary btn-sm hidden" id="reset-sample-data-btn" onclick="resetSampleData()" title="កំណត់ទិន្នន័យឡើងវិញ">
+            <i data-lucide="rotate-ccw"></i> កំណត់ឡើងវិញ
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+
+      <!-- ================= 1. PUBLIC DASHBOARD VIEW (BEFORE LOGIN) ================= -->
+      <section id="view-home" class="view-section active">
+        
+        <!-- Hero Banner Card -->
+        <div class="hero-card">
+          <div class="hero-content">
+            <div class="hero-badge">
+              <span class="pulse-dot"></span> 🚰 បណ្តាញទុយោទឹកស្អាតកំពុងដំណើរការ • Direct Clean Water Supply
+            </div>
+            <h1 class="hero-title">ប្រព័ន្ធផ្គត់ផ្គង់ទឹកស្អាតតាមបណ្តាញទុយោផ្ទាល់ & តភ្ជាប់គីឡូទឹក</h1>
+            <p class="hero-subtitle">
+              ទឹកស្អាតបរិសុទ្ធឆ្លងកាត់ការចម្រោះកម្រិតខ្ពស់ បូមចេញពីស្ថានីយមេ AquaPure ចូលផ្ទាល់តាមខ្នងផ្ទះ និងអគារអាជីវកម្ម។ តម្លៃសេវាតភ្ជាប់៖ <strong class="text-cyan">ភ្ជាប់តាមផ្ទះ 450,000 ៛</strong> • <strong class="text-cyan">រោងចក្រ 1,500,000 ៛</strong> • តម្លៃទឹកប្រើប្រាស់តាមនាឡិកា <strong class="text-cyan">1 m³ = 2,500 ៛</strong>។
+            </p>
+            <div class="hero-cta-group">
+              <button class="btn btn-primary btn-lg" onclick="openContactOptions()">
+                <i data-lucide="home"></i> ស្នើសុំភ្ជាប់តាមផ្ទះ (450,000 ៛)
+              </button>
+              <button class="btn btn-secondary btn-lg" onclick="openContactOptions()">
+                <i data-lucide="building-2"></i> រោងចក្រ (1,500,000 ៛)
+              </button>
+              <a href="#customer-lookup-section" class="btn btn-secondary btn-lg">
+                <i data-lucide="search"></i> ពិនិត្យវិក្កយបត្រ & គីឡូទឹក
+              </a>
+            </div>
+          </div>
+
+          <div class="hero-stat-box">
+            <div class="rate-hero-pill">
+              <span class="rate-label">តម្លៃទឹកស្អាតផ្លូវការ (OFFICIAL WATER TARIFF)</span>
+              <div class="rate-hero-val font-mono">2,500 ៛ <span class="rate-unit">/ m³</span></div>
+              <span class="rate-note">១ ម៉ែត្រគូប (1 m³) = ១,០០០ លីត្រ ទឹកស្អាតកុងទ័រ</span>
+            </div>
+            <div class="hero-purity-specs">
+              <div class="spec-row">
+                <span><i data-lucide="home" class="text-cyan"></i> សេវាភ្ជាប់តាមផ្ទះ:</span>
+                <strong class="text-cyan font-mono">450,000 ៛</strong>
+              </div>
+              <div class="spec-row">
+                <span><i data-lucide="building-2" class="text-cyan"></i> សេវាភ្ជាប់រោងចក្រ:</span>
+                <strong class="text-cyan font-mono">1,500,000 ៛</strong>
+              </div>
+              <div class="spec-row">
+                <span><i data-lucide="gauge" class="text-green"></i> សម្ពាធទឹកទុយោ:</span>
+                <strong class="text-green font-mono">3.2 Bar ថេរ</strong>
+              </div>
+              <div class="spec-row">
+                <span><i data-lucide="shield-check" class="text-green"></i> ប្រព័ន្ធចម្រោះ:</span>
+                <strong class="text-green font-mono">100% RO & UV Purity</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Connection Service Fee Cards -->
+        <div class="connection-fees-grid margin-top-md">
+          <div class="fee-card" onclick="openContactOptions()">
+            <div class="fee-badge font-mono">450,000 ៛</div>
+            <div class="fee-icon-box home">
+              <i data-lucide="home"></i>
+            </div>
+            <div class="fee-content">
+              <h3>សេវាតភ្ជាប់ទុយោទឹកតាមផ្ទះ (Home Connection)</h3>
+              <p>សេវាតភ្ជាប់បណ្តាញទុយោទឹកស្អាត និងដំឡើងគីឡូទឹកសម្រាប់លំនៅឋានទូទៅ ផ្ទះល្វែង និងអាផាតមិន។</p>
+              <ul class="fee-features">
+                <li><i data-lucide="check-circle-2"></i> កប់ទុយោ និងតភ្ជាប់ទុយោមេខ្នាត 1/2" តាមផ្ទះ</li>
+                <li><i data-lucide="check-circle-2"></i> ដំឡើងនាឡិកាគីឡូទឹកស្អាតអេឡិចត្រូនិចស្តង់ដារ</li>
+                <li><i data-lucide="check-circle-2"></i> ដំឡើងវ៉ានបិទបើកមេ និងធ្វើតេស្តសម្ពាធទឹក</li>
+                <li><i data-lucide="check-circle-2"></i> ទូទាត់ប្រចាំខែតាមគីឡូប្រើប្រាស់ជាក់ស្តែង @ 2,500 ៛/m³</li>
+              </ul>
+              <button class="btn btn-primary btn-sm margin-top-md" onclick="openContactOptions(); event.stopPropagation();">
+                ស្នើសុំភ្ជាប់តាមផ្ទះ (450,000 ៛) <i data-lucide="arrow-right"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="fee-card featured-fee-card" onclick="openContactOptions()">
+            <div class="featured-tag">DIRECT LINE</div>
+            <div class="fee-badge font-mono">1,500,000 ៛</div>
+            <div class="fee-icon-box company">
+              <i data-lucide="building-2"></i>
+            </div>
+            <div class="fee-content">
+              <h3>សេវាតភ្ជាប់ទុយោរោងចក្រ (Factory Direct Pipeline)</h3>
+              <p>បណ្តាញទុយោឧស្សាហកម្មកម្លាំងខ្ពស់ បូមផ្គត់ផ្គង់ទឹកស្អាតផ្ទាល់ពីស្ថានីយមេ AquaPure ចូលរោងចក្រ។</p>
+              <ul class="fee-features">
+                <li><i data-lucide="check-circle-2"></i> ទុយោបូមផ្ទាល់ទំហំ 1" ឬ 2" លំហូរទឹកលឿនកម្លាំងខ្លាំង</li>
+                <li><i data-lucide="check-circle-2"></i> នាឡិកាគីឡូទឹកឧស្សាហកម្មកម្រិតច្បាស់លាស់ខ្ពស់</li>
+                <li><i data-lucide="check-circle-2"></i> ឧបករណ៏សម្រួលសម្ពាធទឹក និងប្រព័ន្ធសុវត្ថិភាព</li>
+                <li><i data-lucide="check-circle-2"></i> គិតប្រាក់ប្រចាំខែ @ 2,500 ៛/m³ ជាមួយសេវាថែទាំអាទិភាព</li>
+              </ul>
+              <button class="btn btn-primary btn-sm margin-top-md" onclick="openContactOptions(); event.stopPropagation();">
+                ស្នើសុំតភ្ជាប់រោងចក្រ (1,500,000 ៛) <i data-lucide="arrow-right"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Station Public Statistics Cards -->
+        <div class="metrics-grid margin-top-md" id="public-employee-metrics">
+          <div class="metric-card">
+            <div class="metric-icon cyan">
+              <i data-lucide="coins"></i>
+            </div>
+            <div class="metric-content">
+              <span class="metric-label">ចំណូលសរុបប្រមូលបាន</span>
+              <h3 class="metric-val font-mono text-cyan" id="public-metric-revenue">0 ៛</h3>
+              <span class="metric-sub text-green"><i data-lucide="trending-up"></i> សេវាភ្ជាប់ + 2,500 ៛/m³</span>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon blue">
+              <i data-lucide="droplet"></i>
+            </div>
+            <div class="metric-content">
+              <span class="metric-label">បរិមាណទឹកផ្គត់ផ្គង់សរុប</span>
+              <h3 class="metric-val font-mono" id="public-metric-volume">0 m³</h3>
+              <span class="metric-sub"><i data-lucide="gauge"></i> ទឹកស្អាតកត់ត្រាតាមកុងទ័រ</span>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon green">
+              <i data-lucide="calendar"></i>
+            </div>
+            <div class="metric-content">
+              <span class="metric-label">វិក្កយបត្រប្រចាំខែនេះ</span>
+              <h3 class="metric-val font-mono text-green" id="public-metric-this-month">0 ៛</h3>
+              <span class="metric-sub" id="public-metric-this-month-sub"><i data-lucide="droplets"></i> 0 m³ ខែនេះ</span>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon purple">
+              <i data-lucide="users"></i>
+            </div>
+            <div class="metric-content">
+              <span class="metric-label">ចំនួនតំណភ្ជាប់សកម្ម</span>
+              <h3 class="metric-val font-mono" id="public-metric-customers">0</h3>
+              <span class="metric-sub text-purple"><i data-lucide="check-circle"></i> ខ្នងផ្ទះ & ក្រុមហ៊ុន</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Self-Service Customer Bill & Meter Lookup Section -->
+        <div class="table-container-card margin-top-md" id="customer-lookup-section">
+          <div class="lookup-card-header">
+            <div>
+              <h3><i data-lucide="search" class="text-cyan"></i> ស្វែងរកវិក្កយបត្រ និងទិន្នន័យគីឡូទឹក (Self-Service Lookup)</h3>
+              <p style="font-size: 0.8125rem; color: var(--text-muted); margin-top: 4px;">ពិនិត្យបរិមាណទឹកប្រើប្រាស់ប្រចាំខែ (m³), លេខកុងទ័រ, ប្រភេទសេវាតភ្ជាប់ និងទឹកប្រាក់ត្រូវបង់។</p>
+            </div>
+          </div>
+
+          <div class="lookup-bar-grid">
+            <div class="search-box full-lookup-box">
+              <i data-lucide="search" class="search-icon"></i>
+              <input type="text" id="public-lookup-input" placeholder="បញ្ចូលលេខទូរស័ព្ទ (ឧ. +855...), លេខកុងទ័រ (ឧ. MTR-1082) ឬលេខវិក្កយបត្រ (ឧ. BILL-894201)..." onkeypress="if(event.key==='Enter') searchCustomerBill()">
+            </div>
+            <button class="btn btn-primary" onclick="searchCustomerBill()">
+              <i data-lucide="search"></i> ស្វែងរកវិក្កយបត្រ
+            </button>
+            <button class="btn btn-secondary" onclick="autofillDemoLookup()">
+              <i data-lucide="zap"></i> សាកល្បងកុងទ័រគំរូ
+            </button>
+          </div>
+
+          <!-- Lookup Result Card (Shown on Search) -->
+          <div id="lookup-result-container" class="lookup-result-box hidden">
+            <!-- Rendered dynamically via app.js -->
+          </div>
+        </div>
+
+      </section>
+
+
+      <!-- ================= 2. COMPANY INFORMATION VIEW ================= -->
+      <section id="view-company" class="view-section">
+        <div class="company-hero">
+          <div>
+            <span class="hero-badge"><span class="pulse-dot"></span> AQUAPURE WATER STATION</span>
+            <h1 class="company-hero-title">ទឹកស្អាតដែលភ្ជាប់ជីវិត និងអាជីវកម្ម</h1>
+            <p class="company-hero-copy">AquaPure ផ្គត់ផ្គង់ទឹកស្អាតតាមបណ្តាញទុយោផ្ទាល់សម្រាប់គេហដ្ឋាន អគារពាណិជ្ជកម្ម និងរោងចក្រ ក្នុងរាជធានីភ្នំពេញ។ យើងផ្តោតលើគុណភាព សម្ពាធទឹកមានស្ថិរភាព និងវិក្កយបត្រដែលអាចពិនិត្យបាន។</p>
+            <div class="hero-cta-group">
+              <button class="btn btn-primary btn-lg" onclick="startConnectionOrder('residential_new')"><i data-lucide="home"></i> ចាប់ផ្តើមភ្ជាប់</button>
+              <button class="btn btn-secondary btn-lg" onclick="switchTab('home')"><i data-lucide="arrow-left"></i> មើលសេវាកម្ម</button>
+            </div>
+          </div>
+          <div class="company-hero-mark">
+            <i data-lucide="droplets"></i>
+            <strong>3.2 Bar</strong>
+            <span>សម្ពាធទឹកស្ថិរភាព</span>
+          </div>
+        </div>
+
+        <div class="company-section-heading">
+          <span class="section-kicker">OUR NETWORK</span>
+          <h2>បណ្តាញទឹកស្អាតសម្រាប់តម្រូវការគ្រប់ទំហំ</h2>
+          <p>ពីការប្រើប្រាស់ប្រចាំថ្ងៃ រហូតដល់ប្រព័ន្ធផលិតកម្មដែលត្រូវការលំហូរទឹកជាប់លាប់។</p>
+        </div>
+        <div class="company-info-grid">
+          <article class="company-info-card">
+            <div class="company-info-icon"><i data-lucide="shield-check"></i></div>
+            <h3>គុណភាពដែលអាចទុកចិត្តបាន</h3>
+            <p>ទឹកឆ្លងកាត់ប្រព័ន្ធ RO និង UV មុនបូមចូលបណ្តាញ ដោយមានការត្រួតពិនិត្យជាប្រចាំ។</p>
+            <span class="company-card-meta">RO + UV PURIFICATION</span>
+          </article>
+          <article class="company-info-card">
+            <div class="company-info-icon green"><i data-lucide="gauge"></i></div>
+            <h3>កុងទ័រច្បាស់លាស់</h3>
+            <p>គិតថ្លៃតាមបរិមាណប្រើប្រាស់ពិតប្រាកដ ជាមួយកុងទ័រដែលអាចតាមដាន និងពិនិត្យវិក្កយបត្របាន។</p>
+            <span class="company-card-meta">2,500 ៛ / m³</span>
+          </article>
+          <article class="company-info-card">
+            <div class="company-info-icon orange"><i data-lucide="headphones"></i></div>
+            <h3>សេវាគាំទ្ររហ័ស</h3>
+            <p>ក្រុមប្រតិបត្តិការរបស់យើងជួយរៀបចំការតភ្ជាប់ តេស្តសម្ពាធ និងដោះស្រាយបញ្ហាបណ្តាញ។</p>
+            <span class="company-card-meta">MON - SAT · 8:00 - 17:00</span>
+          </article>
+        </div>
+
+        <div class="company-details-layout">
+          <div class="company-details-panel">
+            <span class="section-kicker">WHY AQUAPURE</span>
+            <h2>ប្រព័ន្ធសាមញ្ញ សម្រាប់ការប្រើប្រាស់ដែលមានទំនុកចិត្ត</h2>
+            <div class="company-detail-row"><i data-lucide="check-circle-2"></i><div><strong>តម្លៃច្បាស់លាស់</strong><span>មិនមានការគិតថ្លៃលាក់កំបាំង។ តម្លៃទឹក និងថ្លៃតភ្ជាប់ត្រូវបានបង្ហាញជាមុន។</span></div></div>
+            <div class="company-detail-row"><i data-lucide="check-circle-2"></i><div><strong>ទិន្នន័យនៅកន្លែងតែមួយ</strong><span>មើលលេខកុងទ័រ បរិមាណទឹក និងប្រវត្តិវិក្កយបត្របានងាយស្រួល។</span></div></div>
+            <div class="company-detail-row"><i data-lucide="check-circle-2"></i><div><strong>សម្រាប់គ្រប់ប្រភេទអតិថិជន</strong><span>មានជម្រើសសម្រាប់លំនៅឋាន ការិយាល័យ និងរោងចក្រដែលត្រូវការបណ្តាញផ្ទាល់។</span></div></div>
+          </div>
+          <aside class="company-contact-panel">
+            <span class="section-kicker">CONTACT</span>
+            <h3>ត្រូវការព័ត៌មានបន្ថែម?</h3>
+            <p>ក្រុមការងារ AquaPure រង់ចាំជួយអ្នកជ្រើសរើសបណ្តាញដែលសមស្រប។</p>
+            <div class="company-contact-item"><i data-lucide="map-pin"></i><span>រាជធានីភ្នំពេញ ប្រទេសកម្ពុជា</span></div>
+            <div class="company-contact-item"><i data-lucide="phone"></i><span>+855 12 345 678</span></div>
+            <div class="company-contact-item"><i data-lucide="mail"></i><span>support@aquapure.kh</span></div>
+            <button class="btn btn-secondary" onclick="openContactOptions()"><i data-lucide="message-circle"></i> ស្នើសុំសេវាកម្ម</button>
+          </aside>
+        </div>
+      </section>
+
+      <!-- ================= 3. CHECKOUT / PIPED WATER BILL & CONNECTION PAYMENT VIEW ================= -->
+      <section id="view-checkout" class="view-section">
+        
+        <!-- Modern Stepper Header -->
+        <div class="checkout-stepper-wrapper">
+          <div class="stepper">
+            <div class="step active" id="step-node-1" onclick="goToStep(1)">
+              <div class="step-circle"><span class="step-num">1</span><i data-lucide="check" class="step-check"></i></div>
+              <div class="step-info">
+                <span class="step-tag">ជំហានទី ១</span>
+                <span class="step-label">សេវាតភ្ជាប់ & ទីតាំង</span>
+              </div>
+            </div>
+            <div class="step-line" id="step-line-1"></div>
+            <div class="step" id="step-node-2" onclick="goToStep(2)">
+              <div class="step-circle"><span class="step-num">2</span><i data-lucide="check" class="step-check"></i></div>
+              <div class="step-info">
+                <span class="step-tag">ជំហានទី ២</span>
+                <span class="step-label">បរិមាណទឹក & តម្លៃ</span>
+              </div>
+            </div>
+            <div class="step-line" id="step-line-2"></div>
+            <div class="step" id="step-node-3" onclick="goToStep(3)">
+              <div class="step-circle"><span class="step-num">3</span><i data-lucide="check" class="step-check"></i></div>
+              <div class="step-info">
+                <span class="step-tag">ជំហានទី ៣</span>
+                <span class="step-label">ការទូទាត់ប្រាក់</span>
+              </div>
+            </div>
+            <div class="step-line" id="step-line-3"></div>
+            <div class="step" id="step-node-4" onclick="goToStep(4)">
+              <div class="step-circle"><span class="step-num">4</span><i data-lucide="check" class="step-check"></i></div>
+              <div class="step-info">
+                <span class="step-tag">ជំហានទី ៤</span>
+                <span class="step-label">វិក្កយបត្រផ្លូវការ</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="checkout-grid">
+          <!-- Left Column: Form Container -->
+          <div class="form-container-card enhanced-checkout-card">
+
+            <!-- STEP 1: Customer Details & Pipeline Selection -->
+            <div class="form-step-content active" id="form-step-1">
+              
+              <div class="step-intro-box">
+                <div class="intro-icon-badge">
+                  <i data-lucide="git-merge"></i>
+                </div>
+                <div>
+                  <h2>ជ្រើសរើសប្រភេទសេវាតភ្ជាប់ & ព័ត៌មានអតិថិជន</h2>
+                  <p>ជ្រើសរើសការស្នើសុំតភ្ជាប់ទុយោទឹកស្អាតថ្មី ឬបង់ថ្លៃទឹកប្រចាំខែសម្រាប់កុងទ័រចាស់។</p>
+                </div>
+              </div>
+
+              <!-- Interactive Visual Service Selector Cards -->
+              <div class="service-selection-section">
+                <label class="section-micro-title"><i data-lucide="layers" class="text-cyan"></i> ១. ជ្រើសរើសប្រភេទសេវាតភ្ជាប់ (Connection Category)</label>
+                
+                <div class="service-cards-row">
+                  <div class="service-select-card active" id="scard-residential" onclick="selectServiceCard('residential_new')">
+                    <div class="scard-check"><i data-lucide="check"></i></div>
+                    <div class="scard-badge font-mono">450,000 ៛</div>
+                    <div class="scard-icon home"><i data-lucide="home"></i></div>
+                    <div class="scard-title">ភ្ជាប់ទុយោតាមផ្ទះ</div>
+                    <div class="scard-desc">សេវាកប់ទុយោខ្នាត 1/2" តាមផ្ទះ ដំឡើងនាឡិកាទឹកស្អាតអេឡិចត្រូនិច & វ៉ានសុវត្ថិភាព។</div>
+                    <div class="scard-pill">ភ្ជាប់ថ្មីតាមផ្ទះ (New Home)</div>
+                  </div>
+
+                  <div class="service-select-card" id="scard-company" onclick="selectServiceCard('company_new')">
+                    <div class="scard-check"><i data-lucide="check"></i></div>
+                    <div class="scard-badge font-mono">1,500,000 ៛</div>
+                    <div class="scard-icon company"><i data-lucide="building-2"></i></div>
+                    <div class="scard-title">រោងចក្រ</div>
+                    <div class="scard-desc">ទុយោឧស្សាហកម្មទំហំ 1"–2" បូមផ្ទាល់ពីស្ថានីយមេ ជាមួយនាឡិកាគីឡូទឹកកម្រិតច្បាស់ខ្ពស់។</div>
+                    <div class="scard-pill company-pill">រោងចក្រ (Factory Line)</div>
+                  </div>
+
+                  <div class="service-select-card" id="scard-existing" onclick="selectServiceCard('existing_bill')">
+                    <div class="scard-check"><i data-lucide="check"></i></div>
+                    <div class="scard-badge font-mono">0 ៛ ឥតគិតថ្លៃសេវា</div>
+                    <div class="scard-icon meter"><i data-lucide="gauge"></i></div>
+                    <div class="scard-title">កុងទ័រកំពុងប្រើប្រាស់</div>
+                    <div class="scard-desc">បង់វិក្កយបត្រថ្លៃទឹកប្រចាំខែតាមគីឡូប្រើប្រាស់ជាក់ស្តែង (@ 2,500 ៛/m³) ដោយគ្មានថ្លៃតភ្ជាប់។</div>
+                    <div class="scard-pill existing-pill">បង់វិក្កយបត្រ (Bill Pay Only)</div>
+                  </div>
+                </div>
+
+                <input type="hidden" id="serviceType" value="residential_new">
+              </div>
+
+              <form id="intake-form" onsubmit="handleStep1Submit(event)">
+                
+                <!-- Section A: Customer Identity -->
+                <div class="form-section-block">
+                  <label class="section-micro-title"><i data-lucide="user" class="text-cyan"></i> ២. ព័ត៌មានទំនាក់ទំនងអតិថិជន (Customer Contact Details)</label>
+                  
+                  <div class="form-grid">
+                    <div class="form-group full-width">
+                      <label for="fullName">ឈ្មោះអតិថិជន / ម្ចាស់ផ្ទះ / ក្រុមហ៊ុន <span class="required">*</span></label>
+                      <div class="input-wrapper">
+                        <i data-lucide="user" class="input-icon"></i>
+                        <input type="text" id="fullName" placeholder="ឧ. សុខ ពិសិដ្ឋ / Sarah Jenkins / Vance Capital" required>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="email">អ៊ីមែល (សម្រាប់ទទួលវិក្កយបត្រឌីជីថល) <span class="required">*</span></label>
+                      <div class="input-wrapper">
+                        <i data-lucide="mail" class="input-icon"></i>
+                        <input type="email" id="email" placeholder="customer@example.com" required>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="phone">លេខទូរស័ព្ទ (SMS / Telegram ជូនដំណឹង) <span class="required">*</span></label>
+                      <div class="input-wrapper">
+                        <i data-lucide="phone" class="input-icon"></i>
+                        <input type="tel" id="phone" placeholder="+855 12 345 678" required>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Section B: Property & Pipeline Address -->
+                <div class="form-section-block">
+                  <label class="section-micro-title"><i data-lucide="map-pin" class="text-cyan"></i> ៣. ទីតាំងអចលនទ្រព្យតភ្ជាប់ទឹក (Property Location)</label>
+                  
+                  <div class="form-grid">
+                    <div class="form-group full-width">
+                      <label for="address">អាសយដ្ឋានផ្ទះ / ផ្លូវ / អគារ <span class="required">*</span></label>
+                      <div class="input-wrapper">
+                        <i data-lucide="map-pin" class="input-icon"></i>
+                        <input type="text" id="address" placeholder="ផ្ទះលេខ ៧៤២, ផ្លូវ ៦៣, សង្កាត់បឹងកេងកង១, ភ្នំពេញ" required>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="city">រាជធានី / ខេត្ត <span class="required">*</span></label>
+                      <input type="text" id="city" placeholder="រាជធានីភ្នំពេញ (Phnom Penh)" required value="រាជធានីភ្នំពេញ (Phnom Penh)">
+                    </div>
+
+                    <div class="form-group">
+                      <label for="state">ខណ្ឌ / ស្រុក <span class="required">*</span></label>
+                      <input type="text" id="state" placeholder="ខណ្ឌចំការមន (Chamkarmon)" required value="ខណ្ឌចំការមន (Chamkarmon)">
+                    </div>
+
+                    <div class="form-group">
+                      <label for="zip">សង្កាត់ / លេខកូដប្រៃសណីយ៍ <span class="required">*</span></label>
+                      <input type="text" id="zip" placeholder="12302" required value="12302">
+                    </div>
+
+                    <div class="form-group">
+                      <label for="deliverySlot">វដ្តកត់ត្រាគីឡូទឹក <span class="required">*</span></label>
+                      <select id="deliverySlot" required>
+                        <option value="វដ្តដើមខែ (ថ្ងៃទី ១ - ៥ ដើមខែ)">វដ្តដើមខែ (ថ្ងៃទី ១ - ៥ ដើមខែ)</option>
+                        <option value="វដ្តពាក់កណ្តាលខែ (ថ្ងៃទី ១៥ - ២០)">វដ្តពាក់កណ្តាលខែ (ថ្ងៃទី ១៥ - ២០)</option>
+                        <option value="កត់ត្រាគីឡូភ្លាមៗ (Live Reading)">កត់ត្រាគីឡូភ្លាមៗ (Live Reading)</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Section C: Meter & Technical Specs -->
+                <div class="form-section-block">
+                  <label class="section-micro-title"><i data-lucide="wrench" class="text-cyan"></i> ៤. លក្ខណៈបច្ចេកទេសនាឡិកា & ទុយោទឹក (Meter & Pipe Specs)</label>
+                  
+                  <div class="form-grid">
+                    <div class="form-group">
+                      <label for="meterId">លេខសម្គាល់នាឡិកាទឹក (Meter Serial #) <span class="required">*</span></label>
+                      <div class="input-wrapper">
+                        <i data-lucide="gauge" class="input-icon"></i>
+                        <input type="text" id="meterId" placeholder="MTR-1082" required value="MTR-1082">
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="containerType">ទំហំមុខកាត់ទុយោទឹក <span class="required">*</span></label>
+                      <div class="input-wrapper">
+                        <i data-lucide="git-merge" class="input-icon"></i>
+                        <select id="containerType" required>
+                          <option value="ទុយោតាមផ្ទះ (1/2&quot; Line)">ទុយោមេតាមផ្ទះ (1/2" Line)</option>
+                          <option value="ទុយោរោងចក្រ/ការិយាល័យ (1&quot; Line)">ទុយោរោងចក្រ/ការិយាល័យ (1" Line)</option>
+                          <option value="ទុយោឧស្សាហកម្មផ្ទាល់ពីស្ថានីយ (2&quot; Line)">ទុយោឧស្សាហកម្មផ្ទាល់ពីស្ថានីយ (2" Line)</option>
+                          <option value="ទុយោកុងទ័ររងបន្ទប់ជួល/ខុនដូ">ទុយោកុងទ័ររងបន្ទប់ជួល/ខុនដូ</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div class="form-group full-width">
+                      <label for="notes">ទីតាំងដំឡើងនាឡិកា ឬផ្លូវកប់ទុយោ (Installation Notes)</label>
+                      <textarea id="notes" rows="2" placeholder="បញ្ជាក់ទីតាំងដំឡើង (ឧ. ក្បែររបងមុខផ្ទះខាងឆ្វេង, ផ្លូវកប់ទុយោឆ្លងកាត់ច្រកចូលមុខផ្ទះ)..."></textarea>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-actions">
+                  <button type="submit" class="btn btn-primary btn-lg">
+                    បន្តទៅគណនាបរិមាណទឹក & តម្លៃ <i data-lucide="arrow-right"></i>
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <!-- STEP 2: Meter Reading, Connection Fees & Volume Calculation (m³) -->
+            <div class="form-step-content" id="form-step-2">
+              
+              <div class="step-intro-box">
+                <div class="intro-icon-badge">
+                  <i data-lucide="gauge"></i>
+                </div>
+                <div>
+                  <h2>បរិមាណទឹកប្រើប្រាស់ & តម្លៃសេវាតភ្ជាប់</h2>
+                  <p>តម្លៃទឹកស្អាតតាមកុងទ័រផ្លូវការ៖ <strong class="text-cyan">1 m³ = 2,500 ៛ (រៀល)</strong>។</p>
+                </div>
+              </div>
+
+              <!-- Connection Fee Banner Box -->
+              <div class="connection-fee-summary-banner" id="connection-fee-banner">
+                <div class="fee-banner-icon"><i data-lucide="wrench"></i></div>
+                <div class="fee-banner-text">
+                  <strong id="fee-banner-title">សេវាតភ្ជាប់ទុយោទឹកតាមផ្ទះ</strong>
+                  <p id="fee-banner-desc">រួមបញ្ចូលទាំងការកប់ទុយោ 1/2", ដំឡើងនាឡិកាទឹកអេឡិចត្រូនិច និងតេស្តសម្ពាធទឹក។</p>
+                </div>
+                <div class="fee-banner-price font-mono" id="fee-banner-price">450,000 ៛</div>
+              </div>
+
+              <!-- Piped Volume Plans Grid -->
+              <div class="margin-top-md">
+                <label class="section-micro-title"><i data-lucide="droplet" class="text-cyan"></i> ជ្រើសរើសបរិមាណទឹកប្រើប្រាស់ប្រចាំខែ (Monthly Volume)</label>
+                
+                <div class="packages-grid margin-top-sm">
+                  <div class="package-card active" onclick="selectPackage('residential', 'ការប្រើប្រាស់តាមផ្ទះ (Residential)', 10)">
+                    <div class="package-badge font-mono">25,000 ៛</div>
+                    <div class="package-header">
+                      <h3>លំនៅឋានទូទៅ (Home)</h3>
+                      <p>10 m³ (10,000 លីត្រ) @ 2,500 ៛/m³</p>
+                    </div>
+                    <ul class="package-features">
+                      <li><i data-lucide="check-circle-2"></i> 10 m³ ទឹកស្អាតបូមផ្ទាល់តាមទុយោ</li>
+                      <li><i data-lucide="check-circle-2"></i> ប្រព័ន្ធចម្រោះកម្រិត RO & UV Purity</li>
+                      <li><i data-lucide="check-circle-2"></i> កត់ត្រាវិក្កយបត្រកុងទ័រស្វ័យប្រវត្តិ</li>
+                    </ul>
+                  </div>
+
+                  <div class="package-card" onclick="selectPackage('office', 'ការិយាល័យ/ពាណិជ្ជកម្ម (Commercial Office)', 25)">
+                    <div class="package-badge font-mono">62,500 ៛</div>
+                    <div class="package-header">
+                      <h3>ការិយាល័យ / ហាង</h3>
+                      <p>25 m³ (25,000 លីត្រ) @ 2,500 ៛/m³</p>
+                    </div>
+                    <ul class="package-features">
+                      <li><i data-lucide="check-circle-2"></i> 25 m³ ទឹកស្អាតកម្លាំងហូរខ្លាំង</li>
+                      <li><i data-lucide="check-circle-2"></i> បំពង់ទុយោខ្នាតធំសម្រាប់អាជីវកម្ម</li>
+                      <li><i data-lucide="check-circle-2"></i> ឥតគិតថ្លៃសេវាពិនិត្យវ៉ាន & សម្ពាធទឹក</li>
+                    </ul>
+                  </div>
+
+                  <div class="package-card" onclick="selectPackage('commercial', 'រោងចក្រ/ឧស្សាហកម្ម (Industrial Facility)', 50)">
+                    <div class="package-badge font-mono">125,000 ៛</div>
+                    <div class="package-header">
+                      <h3>រោងចក្រ / ឧស្សាហកម្ម</h3>
+                      <p>50 m³ (50,000 លីត្រ) @ 2,500 ៛/m³</p>
+                    </div>
+                    <ul class="package-features">
+                      <li><i data-lucide="check-circle-2"></i> 50 m³ ទឹកស្អាតផ្គត់ផ្គង់អគារធំ</li>
+                      <li><i data-lucide="check-circle-2"></i> វិញ្ញាបនបត្រគុណភាពទឹកស្តង់ដារមន្ទីរពិសោធន៍</li>
+                      <li><i data-lucide="check-circle-2"></i> ធានាសម្ពាធទឹកថេរពេញ ២៤ ម៉ោង</li>
+                    </ul>
+                  </div>
+
+                  <div class="package-card" onclick="selectPackage('custom', 'បញ្ចូលគីឡូទឹកជាក់ស្តែង (Custom m³)', 10)">
+                    <div class="package-badge font-mono">គីឡូជាក់ស្តែង</div>
+                    <div class="package-header">
+                      <h3>កំណត់គីឡូផ្ទាល់</h3>
+                      <p>បញ្ចូលចំនួនម៉ែត្រគូប (m³) ជាក់ស្តែង</p>
+                    </div>
+                    <div class="custom-amount-input" id="custom-amount-box" style="display:none;">
+                      <label for="customM3Input">បញ្ចូលចំនួន m³ (1 m³ = 2,500 ៛)</label>
+                      <div class="input-wrapper">
+                        <input type="number" id="customM3Input" min="0" step="0.5" placeholder="0.0" oninput="updateCustomM3(this.value)">
+                        <span class="currency-suffix">m³</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Interactive Volume Quantity Stepper (m³) -->
+              <div class="volume-selector-card margin-top-md" id="volume-selector-container">
+                <div class="volume-header">
+                  <div class="volume-title">
+                    <i data-lucide="gauge" class="text-cyan"></i>
+                    <div>
+                      <strong>ឧបករណ៍កំណត់បរិមាណទឹកជាក់ស្តែង (Precision Meter Dial)</strong>
+                      <span class="volume-subtext">កែសម្រួលចំនួនម៉ែត្រគូប (m³) សម្រាប់វិក្កយបត្រខែនេះ (@ 2,500 ៛ / m³)</span>
+                    </div>
+                  </div>
+                  <div class="gallons-badge font-mono" id="m3-price-display">0 m³ × 2,500 ៛ = 0 ៛</div>
+                </div>
+
+                <div class="quantity-stepper">
+                  <button type="button" class="btn-qty" onclick="adjustM3(-0.5)" title="បន្ថយ 0.5 m³"><i data-lucide="minus"></i></button>
+                  <div class="qty-display">
+                    <span class="qty-num font-mono" id="m3-count-num">0</span>
+                    <span class="qty-unit">ម៉ែត្រគូប (m³) • <span id="liters-count-num">0</span> លីត្រ</span>
+                  </div>
+                  <button type="button" class="btn-qty" onclick="adjustM3(0.5)" title="បន្ថែម 0.5 m³"><i data-lucide="plus"></i></button>
+                </div>
+              </div>
+
+              <!-- Pipeline Maintenance Add-ons (Riel) -->
+              <div class="add-ons-container margin-top-md">
+                <h3><i data-lucide="wrench" class="text-cyan"></i> សេវាកម្មថែទាំទុយោ & ជំនួយបន្ថែម (Optional Services)</h3>
+                
+                <div class="add-on-item">
+                  <label class="checkbox-container">
+                    <input type="checkbox" id="addon-express" onchange="toggleAddon('express')">
+                    <span class="checkmark"></span>
+                    <div class="addon-info">
+                      <span class="addon-title">ត្រួតពិនិត្យសម្ពាធទុយោ និងតេស្តវ៉ានសុវត្ថិភាព</span>
+                      <span class="addon-desc">ជាងជំនាញចុះពិនិត្យវ៉ានមេ ធានាសម្ពាធទឹកថេរ 3.2 Bar និងជួសជុលការលេចធ្លាយ</span>
+                    </div>
+                  </label>
+                  <span class="addon-price font-mono">+5,000 ៛</span>
+                </div>
+
+                <div class="add-on-item margin-top-sm">
+                  <label class="checkbox-container">
+                    <input type="checkbox" id="addon-wash" onchange="toggleAddon('wash')">
+                    <span class="checkmark"></span>
+                    <div class="addon-info">
+                      <span class="addon-title">ក្រិតកុងទ័រប្រចាំឆ្នាំ & លាងសម្អាតទុយោដោយអូហ្សូន</span>
+                      <span class="addon-desc">ក្រិតភាពច្បាស់លាស់នៃនាឡិកាទឹក និងលាងសម្អាតកម្ចាត់បាក់តេរីក្នុងទុយោចូលផ្ទះ</span>
+                    </div>
+                  </label>
+                  <span class="addon-price font-mono">+8,000 ៛</span>
+                </div>
+
+                <div class="add-on-item margin-top-sm">
+                  <label class="checkbox-container">
+                    <input type="checkbox" id="addon-alkaline" onchange="toggleAddon('alkaline')">
+                    <span class="checkmark"></span>
+                    <div class="addon-info">
+                      <span class="addon-title">បន្ថែមសារធាតុរ៉ែធម្មជាតិ & បន្ទន់ទឹកក្នុងទុយោ</span>
+                      <span class="addon-desc">បន្ថែមសារធាតុរ៉ែ កាល់ស្យូម និងម៉ាញ៉េស្យូម បង្កើនកម្រិត pH ទឹកដល់ 8.5+</span>
+                    </div>
+                  </label>
+                  <span class="addon-price font-mono">+6,000 ៛</span>
+                </div>
+              </div>
+
+              <div class="form-actions space-between">
+                <button type="button" class="btn btn-secondary" onclick="goToStep(1)">
+                  <i data-lucide="arrow-left"></i> ថយក្រោយ
+                </button>
+                <button type="button" class="btn btn-primary btn-lg" id="step2-continue-button" onclick="goToStep(3)">
+                  បន្តទៅការទូទាត់ប្រាក់ <i data-lucide="arrow-right"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- STEP 3: Payment Gateway Checkout -->
+            <div class="form-step-content" id="form-step-3">
+              
+              <div class="step-intro-box">
+                <div class="intro-icon-badge">
+                  <i data-lucide="shield-check"></i>
+                </div>
+                <div>
+                  <h2>ច្រកទូទាត់ប្រាក់ថ្លៃទឹកស្អាតប្រកបដោយសុវត្ថិភាព</h2>
+                  <p>ទូទាត់ថ្លៃសេវាតភ្ជាប់ទុយោទឹក និងវិក្កយបត្រទឹកស្អាតជាប្រាក់រៀល (KHR) ដោយសុវត្ថិភាព។</p>
+                </div>
+              </div>
+
+              <!-- Quick Test Cards Preset Bar -->
+              <div class="test-cards-panel">
+                <div class="test-cards-header">
+                  <i data-lucide="zap" class="text-cyan"></i> <strong>កាតសាកល្បងរហ័ស (ចុចដើម្បីបំពេញស្វ័យប្រវត្តិ):</strong>
+                </div>
+                <div class="test-card-buttons">
+                  <button type="button" class="btn-test-card success" onclick="autofillCard('4242424242424242', '12/28', '424', 'success')">
+                    <i data-lucide="check-circle"></i> កាតជោគជ័យ (Success)
+                  </button>
+                  <button type="button" class="btn-test-card decline" onclick="autofillCard('4000000000000002', '05/27', '999', 'decline')">
+                    <i data-lucide="alert-circle"></i> កាតបដិសេធ (Declined)
+                  </button>
+                  <button type="button" class="btn-test-card warning" onclick="autofillCard('4000000000000003', '10/26', '123', 'funds')">
+                    <i data-lucide="coins"></i> ប្រាក់មិនគ្រប់ (Low Funds)
+                  </button>
+                </div>
+              </div>
+
+              <!-- Visual Credit Card Mockup -->
+              <div class="card-visual-container">
+                <div class="credit-card-preview" id="card-preview">
+                  <div class="card-wave-overlay"></div>
+                  <div class="card-chip"><i data-lucide="git-merge" class="card-chip-icon"></i></div>
+                  <div class="card-brand" id="preview-brand">VISA</div>
+                  <div class="card-number-display font-mono" id="preview-number">•••• •••• •••• ••••</div>
+                  <div class="card-footer-display">
+                    <div class="card-holder">
+                      <span class="card-label">ម្ចាស់គណនីទឹកស្អាត (ACCOUNT HOLDER)</span>
+                      <span class="card-val" id="preview-name">ឈ្មោះរបស់អ្នក</span>
+                    </div>
+                    <div class="card-expires">
+                      <span class="card-label">ផុតកំណត់</span>
+                      <span class="card-val" id="preview-expiry">MM/YY</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Payment Input Form -->
+              <form id="payment-form" onsubmit="processPayment(event)">
+                <div class="form-grid">
+                  <div class="form-group full-width">
+                    <label for="cardNumber">លេខកាតធនាគារ (Card Number) <span class="required">*</span></label>
+                    <div class="input-wrapper">
+                      <i data-lucide="credit-card" class="input-icon"></i>
+                      <input type="text" id="cardNumber" class="font-mono" placeholder="4242 •••• •••• 4242" maxlength="19" oninput="formatCardNumber(this)" required>
+                      <span class="card-type-icon" id="card-type-badge">CARD</span>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="cardExpiry">កាលបរិច្ឆេទផុតកំណត់ (MM/YY) <span class="required">*</span></label>
+                    <div class="input-wrapper">
+                      <i data-lucide="calendar" class="input-icon"></i>
+                      <input type="text" id="cardExpiry" class="font-mono" placeholder="MM/YY" maxlength="5" oninput="formatExpiry(this)" required>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="cardCvc">លេខកូដសម្ងាត់ (CVC / CVV) <span class="required">*</span></label>
+                    <div class="input-wrapper">
+                      <i data-lucide="lock" class="input-icon"></i>
+                      <input type="password" id="cardCvc" class="font-mono" placeholder="123" maxlength="4" required>
+                    </div>
+                  </div>
+                </div>
+
+                <div id="payment-error-alert" class="alert alert-danger hidden">
+                  <i data-lucide="alert-octagon"></i>
+                  <span id="payment-error-msg">ការទូទាត់មិនជោគជ័យ។ សូមពិនិត្យព័ត៌មានកាតឡើងវិញ។</span>
+                </div>
+
+                <div class="security-footer">
+                  <div class="sec-badge"><i data-lucide="shield-check"></i> ប្រព័ន្ធសុវត្ថិភាពកម្រិតខ្ពស់ 256-Bit SSL</div>
+                  <div class="sec-badge"><i data-lucide="git-merge"></i> បញ្ជាក់ការតភ្ជាប់ទឹកស្អាតភ្លាមៗ</div>
+                </div>
+
+                <div class="form-actions space-between">
+                  <button type="button" class="btn btn-secondary" onclick="goToStep(2)">
+                    <i data-lucide="arrow-left"></i> ថយក្រោយ
+                  </button>
+                  <button type="submit" class="btn btn-success btn-lg" id="pay-submit-btn">
+                    <i data-lucide="lock"></i> បង់ប្រាក់សរុប <span id="pay-button-amount">475,000 ៛</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <!-- STEP 4: Confirmation & Digital Utility Bill -->
+            <div class="form-step-content" id="form-step-4">
+              <div class="receipt-success-banner">
+                <div class="success-icon-wrapper">
+                  <i data-lucide="check"></i>
+                </div>
+                <h2 id="receipt-title">ការទូទាត់ថ្លៃសេវាទឹកស្អាតបានជោគជ័យ!</h2>
+                <p id="receipt-message">សូមអរគុណ! ប្រតិបត្តិការទូទាត់ថ្លៃសេវាតភ្ជាប់ និងទឹកស្អាតរបស់អ្នកត្រូវបានកត់ត្រាក្នុងប្រព័ន្ធ។</p>
+                <div class="txn-chip">លេខយោងវិក្កយបត្រ (Invoice Ref): <strong class="font-mono" id="receipt-txn-id">BILL-894201</strong></div>
+              </div>
+
+              <!-- Printable Water Station Digital Receipt -->
+              <div class="receipt-card" id="printable-receipt">
+                <div class="receipt-header">
+                  <div class="receipt-brand">
+                    <i data-lucide="git-merge" class="text-cyan"></i> <span>ស្ថានីយទឹកស្អាត AquaPure • វិក្កយបត្រទឹកស្អាតផ្លូវការ</span>
+                  </div>
+                  <div class="receipt-status-pill">បានទូទាត់រួចរាល់ (PAID)</div>
+                </div>
+
+                <!-- Water Quality Purity Seal Badge -->
+                <div class="purity-seal-card">
+                  <div class="seal-icon"><i data-lucide="award"></i></div>
+                  <div class="seal-details">
+                    <strong class="seal-title">វិញ្ញាបនបត្របញ្ជាក់គុណភាពទឹក & ការតភ្ជាប់ទឹកស្អាតផ្លូវការ</strong>
+                    <p class="seal-sub">ផ្គត់ផ្គង់ចេញពីស្ថានីយចម្រោះមេ AquaPure • លេខបាច់ (Batch): <span id="receipt-batch-id">AQ-PIPE-2026-99</span></p>
+                    <div class="seal-metrics">
+                      <span>តម្លៃទឹក: <strong id="receipt-rate" class="text-cyan">2,500 ៛/m³</strong></span>
+                      <span>សម្ពាធទឹក: <strong>3.2 Bar</strong></span>
+                      <span>កម្រិត TDS: <strong>3 PPM</strong></span>
+                      <span>កម្រិត pH: <strong>7.6</strong></span>
+                      <span>កម្ចាត់មេរោគ: <strong>100% UV & Ozone</strong></span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="receipt-meta-grid">
+                  <div>
+                    <span class="meta-lbl">ឈ្មោះអតិថិជន (Customer Name)</span>
+                    <strong class="meta-val" id="receipt-customer-name">សុខ ពិសិដ្ឋ / Sarah Jenkins</strong>
+                  </div>
+                  <div>
+                    <span class="meta-lbl">លេខកុងទ័រទឹក (Meter Serial #)</span>
+                    <strong class="meta-val font-mono text-cyan" id="receipt-meter-id">MTR-1082</strong>
+                  </div>
+                  <div>
+                    <span class="meta-lbl">កាលបរិច្ឆេទ & ម៉ោង</span>
+                    <strong class="meta-val" id="receipt-date">2026-08-21 15:00</strong>
+                  </div>
+                  <div>
+                    <span class="meta-lbl">ទីតាំងតភ្ជាប់ទឹក (Address)</span>
+                    <strong class="meta-val" id="receipt-address">ផ្ទះលេខ ៧៤២, ផ្លូវ ៦៣, សង្កាត់បឹងកេងកង១, ភ្នំពេញ</strong>
+                  </div>
+                  <div>
+                    <span class="meta-lbl">ទំហំមុខកាត់ទុយោ</span>
+                    <strong class="meta-val" id="receipt-container-type">ទុយោមេតាមផ្ទះ (1/2" Line)</strong>
+                  </div>
+                  <div>
+                    <span class="meta-lbl">បរិមាណទឹកគិតប្រាក់សរុប</span>
+                    <strong class="meta-val font-mono text-cyan" id="receipt-m3-volume">10 m³ (10,000 លីត្រ)</strong>
+                  </div>
+                  <div>
+                    <span class="meta-lbl">វិធីសាស្ត្រទូទាត់</span>
+                    <strong class="meta-val" id="receipt-payment-method">Visa ending in 4242</strong>
+                  </div>
+                </div>
+
+                <hr class="receipt-divider">
+
+                <table class="receipt-items-table">
+                  <thead>
+                    <tr>
+                      <th>បរិយាយសេវាទឹកស្អាត (Description)</th>
+                      <th class="text-center">បរិមាណ (Units)</th>
+                      <th class="text-right">ទឹកប្រាក់ (៛)</th>
+                    </tr>
+                  </thead>
+                  <tbody id="receipt-items-body">
+                    <!-- Populated dynamically -->
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td colspan="2">សរុបទឹកប្រាក់រង (Subtotal)</td>
+                      <td class="text-right font-mono" id="receipt-subtotal">475,000 ៛</td>
+                    </tr>
+                    <tr class="grand-total-row">
+                      <td colspan="2">ទឹកប្រាក់បានទូទាត់សរុប (Total Paid)</td>
+                      <td class="text-right font-mono text-cyan" id="receipt-total">475,000 ៛</td>
+                    </tr>
+                  </tfoot>
+                </table>
+
+                <div class="receipt-footer-notes">
+                  <p id="receipt-notes-container"><strong>ចំណាំទីតាំងដំឡើង & ទុយោ៖</strong> <span id="receipt-notes">គ្មាន</span></p>
+                </div>
+              </div>
+
+              <div class="receipt-actions">
+                <button class="btn btn-secondary" onclick="printReceipt()">
+                  <i data-lucide="printer"></i> បោះពុម្ពវិក្កយបត្រ / PDF
+                </button>
+                <button class="btn btn-secondary" onclick="openEmailModal()">
+                  <i data-lucide="mail"></i> ផ្ញើតាមអ៊ីមែល
+                </button>
+                <button class="btn btn-primary" onclick="restartIntake()">
+                  <i data-lucide="plus-circle"></i> ស្នើសុំភ្ជាប់ថ្មី / បង់វិក្កយបត្រទៀត
+                </button>
+                <button class="btn btn-success" onclick="switchTab('admin')">
+                  <i data-lucide="layout-dashboard"></i> ផ្ទាំងគ្រប់គ្រងស្ថានីយ
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Right Column: Order Summary Sidebar -->
+          <div class="summary-sidebar-card enhanced-sidebar" id="summary-sidebar">
+            <div class="sidebar-header">
+              <h3>សង្ខេបវិក្កយបត្រទឹក</h3>
+              <span class="badge" id="summary-badge">ជំហាន ១ នៃ ៤</span>
+            </div>
+
+            <div class="summary-service-box">
+              <div class="service-name" id="summary-package-title">សេវាតភ្ជាប់ទុយោទឹកតាមផ្ទះ</div>
+              <div class="service-desc" id="summary-package-desc">ថ្លៃសេវាតភ្ជាប់ 450,000 ៛ + ទឹកកុងទ័រ 10 m³</div>
+              <div class="summary-gallons-pill" id="summary-gallons-pill">💧 10 m³ ទឹកស្អាតតាមទុយោ</div>
+            </div>
+
+            <div class="summary-breakdown">
+              <div class="line-item" id="summary-connection-fee-row">
+                <span id="summary-connection-fee-label">ថ្លៃសេវាតភ្ជាប់ទុយោតាមផ្ទះ</span>
+                <span class="font-mono" id="summary-connection-fee">450,000 ៛</span>
+              </div>
+              <div class="line-item">
+                <span>ថ្លៃទឹកស្អាត (@ 2,500 ៛/m³)</span>
+                <span class="font-mono" id="summary-base-price">25,000 ៛</span>
+              </div>
+              <div class="line-item hidden" id="summary-addon-express-row">
+                <span>ពិនិត្យសម្ពាធទឹក & តេស្តវ៉ាន</span>
+                <span class="font-mono">5,000 ៛</span>
+              </div>
+              <div class="line-item hidden" id="summary-addon-wash-row">
+                <span>ក្រិតកុងទ័រ & លាងទុយោអូហ្សូន</span>
+                <span class="font-mono">8,000 ៛</span>
+              </div>
+              <div class="line-item hidden" id="summary-addon-alkaline-row">
+                <span>បន្ថែមសារធាតុរ៉ែ & បន្ទន់ទឹក</span>
+                <span class="font-mono">6,000 ៛</span>
+              </div>
+              <hr class="summary-divider">
+              <div class="line-item total-item">
+                <span>ទឹកប្រាក់ត្រូវបង់សរុប</span>
+                <span class="font-mono price-highlight" id="summary-total">475,000 ៛</span>
+              </div>
+            </div>
+
+            <div class="summary-guarantee">
+              <i data-lucide="shield-check"></i>
+              <span>ភ្ជាប់តាមផ្ទះ: 450,000 ៛ • រោងចក្រ: 1,500,000 ៛ • ទឹក: 2,500 ៛/m³</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ================= 3. ADMIN & OPERATIONS DASHBOARD (PROTECTED) ================= -->
+      <section id="view-admin" class="view-section">
+
+        <!-- Admin Login Required Banner / Gate (Shown when NOT logged in) -->
+        <div id="admin-login-gate" class="admin-gate-card">
+          <div class="gate-lock-icon">
+            <i data-lucide="lock"></i>
+          </div>
+          <h2>តម្រូវឱ្យចូលប្រព័ន្ធដើម្បីបន្ត</h2>
+          <p>សូមចូលប្រព័ន្ធដើម្បីគ្រប់គ្រងទិន្នន័យអតិថិជនតភ្ជាប់ទុយោទឹក, កត់ត្រាគីឡូទឹក, ពិនិត្យចំណូលប្រចាំខែ និងទាញយករាយការណ៍ CSV។</p>
+          <div class="gate-actions">
+            <button class="btn btn-primary btn-lg" onclick="openLoginModal()">
+              <i data-lucide="log-in"></i> ចូលប្រព័ន្ធប្រតិបត្តិការ
+            </button>
+            <button class="btn btn-secondary btn-lg" onclick="quickDemoAdminLogin()">
+              <i data-lucide="zap"></i> ចូលសាកល្បង ១-Click Demo
+            </button>
+            <button class="btn btn-secondary btn-lg" onclick="switchTab('home')">
+              <i data-lucide="arrow-left"></i> ត្រឡប់ទៅទំព័រមុខ
+            </button>
+          </div>
+        </div>
+
+        <!-- Protected Admin Content (Shown when LOGGED IN) -->
+        <div id="admin-authenticated-content" class="hidden">
+          <!-- Admin Status Bar -->
+          <div class="admin-welcome-bar">
+            <div class="welcome-text">
+              <span class="admin-badge"><i data-lucide="shield-check"></i> សិទ្ធិគ្រប់គ្រងប្រតិបត្តិការស្ថានីយទឹកស្អាត (Authorized Operations)</span>
+              <h2>មជ្ឈមណ្ឌលគ្រប់គ្រងបណ្តាញទុយោទឹក & គីឡូទឹកអតិថិជន</h2>
+            </div>
+            <div class="welcome-actions">
+              <button class="btn btn-secondary btn-sm" data-permission="exportReports" onclick="exportToCSV()">
+                <i data-lucide="download"></i> ទាញយករបាយការណ៍ CSV
+              </button>
+              <button class="btn btn-primary btn-sm" data-permission="createPayment" onclick="switchTab('checkout'); restartIntake();">
+                <i data-lucide="plus"></i> តភ្ជាប់កុងទ័រទឹកថ្មី
+              </button>
+              <button class="btn btn-secondary btn-sm text-danger" onclick="logoutAdmin()">
+                <i data-lucide="log-out"></i> ចាកចេញ (Logout)
+              </button>
+            </div>
+          </div>
+          <div id="pending-approval-alert" class="alert alert-warning hidden margin-top-md">
+            <i data-lucide="bell-ring"></i>
+            <span><strong id="pending-approval-count">0</strong> ការចុះឈ្មោះថ្មីកំពុងរង់ចាំការអនុម័តពី Admin។</span>
+          </div>
+
+          <div class="table-container-card margin-top-md user-management-card" id="user-management-panel">
+            <div class="monthly-header-box user-management-header">
+              <div>
+                <h3><i data-lucide="users" class="text-cyan"></i> គ្រប់គ្រងអ្នកប្រើប្រាស់ និងតួនាទី</h3>
+                <p style="font-size: 0.8125rem; color: var(--text-muted); margin-top: 4px;">Admin អាចបង្កើត កែប្រែ លុប និងកំណត់តួនាទី Clerk ឬ Normal User។</p>
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="resetUserForm()"><i data-lucide="plus"></i> អ្នកប្រើប្រាស់ថ្មី</button>
+            </div>
+            <form id="user-form" class="user-form" onsubmit="handleUserFormSubmit(event)">
+              <input type="hidden" id="user-edit-id">
+              <h4 id="user-form-title">បង្កើតអ្នកប្រើប្រាស់ថ្មី</h4>
+              <div class="form-grid">
+                <div class="form-group"><label for="user-name-input">ឈ្មោះ</label><input id="user-name-input" type="text" required></div>
+                <div class="form-group"><label for="user-email-input">អ៊ីមែល</label><input id="user-email-input" type="email" required></div>
+                <div class="form-group"><label for="user-password-input">ពាក្យសម្ងាត់</label><input id="user-password-input" type="password" required></div>
+                <div class="form-group"><label for="user-role-input">តួនាទី</label><select id="user-role-input"><option value="clerk">Clerk</option><option value="finance">Finance</option><option value="user">Normal User</option></select></div>
+              </div>
+              <div class="form-actions"><button type="submit" class="btn btn-primary"><i data-lucide="save"></i> រក្សាទុកអ្នកប្រើប្រាស់</button><button type="button" class="btn btn-secondary" onclick="resetUserForm()">សម្អាត</button></div>
+            </form>
+            <div class="table-responsive"><table class="admin-table"><thead><tr><th>ឈ្មោះ និងអ៊ីមែល</th><th>តួនាទី</th><th class="text-right">សកម្មភាព</th></tr></thead><tbody id="user-management-body"></tbody></table></div>
+          </div>
+
+          <!-- Analytics Header Cards -->
+          <div class="metrics-grid margin-top-md">
+            <div class="metric-card">
+              <div class="metric-icon cyan">
+                <i data-lucide="coins"></i>
+              </div>
+              <div class="metric-content">
+                <span class="metric-label">ចំណូលសរុបប្រមូលបាន</span>
+                <h3 class="metric-val font-mono text-cyan" id="metric-revenue">0 ៛</h3>
+                <span class="metric-sub text-green"><i data-lucide="trending-up"></i> សេវាភ្ជាប់ + ទឹកកុងទ័រ</span>
+              </div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-icon blue">
+                <i data-lucide="droplet"></i>
+              </div>
+              <div class="metric-content">
+                <span class="metric-label">បរិមាណទឹកផ្គត់ផ្គង់សរុប</span>
+                <h3 class="metric-val font-mono" id="metric-gallons">0 m³</h3>
+                <span class="metric-sub"><i data-lucide="gauge"></i> គិតជាម៉ែត្រគូប (m³)</span>
+              </div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-icon green">
+                <i data-lucide="calendar"></i>
+              </div>
+              <div class="metric-content">
+                <span class="metric-label">វិក្កយបត្រប្រចាំខែនេះ</span>
+                <h3 class="metric-val font-mono text-green" id="metric-this-month">0 ៛</h3>
+                <span class="metric-sub" id="metric-this-month-m3"><i data-lucide="droplets"></i> 0 m³ ខែនេះ</span>
+              </div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-icon purple">
+                <i data-lucide="users"></i>
+              </div>
+              <div class="metric-content">
+                <span class="metric-label">ចំនួនកុងទ័រសកម្មសរុប</span>
+                <h3 class="metric-val font-mono" id="metric-customers">0</h3>
+                <span class="metric-sub text-purple"><i data-lucide="check-circle"></i> គណនីបណ្តាញទុយោ</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Monthly Totals Aggregation Table Card -->
+          <div class="table-container-card margin-top-md margin-bottom-lg">
+            <div class="monthly-header-box">
+              <div>
+                <h3><i data-lucide="calendar-check" class="text-cyan"></i> តារាងសរុបបរិមាណទឹក និងចំណូលហិរញ្ញវត្ថុប្រចាំខែ (Monthly Totals)</h3>
+                <p style="font-size: 0.8125rem; color: var(--text-muted); margin-top: 4px;">សរុបបរិមាណទឹកដែលបានបូមផ្គត់ផ្គង់ (m³) និងទឹកប្រាក់រៀល (KHR) ប្រមូលបានពីគ្រប់កុងទ័រទាំងអស់</p>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="admin-table monthly-table">
+                <thead>
+                  <tr>
+                    <th>ខែគិតប្រាក់ (Billing Month)</th>
+                    <th>បរិមាណទឹកផ្គត់ផ្គង់ (m³)</th>
+                    <th>ចំនួនកុងទ័របានគិត</th>
+                    <th>ចំណូលប្រមូលបានសរុប (៛)</th>
+                  </tr>
+                </thead>
+                <tbody id="monthly-totals-body">
+                  <!-- Populated dynamically via app.js -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Customer Water Data Table Card -->
+          <div class="table-container-card">
+            <div class="table-controls">
+              <div class="search-box">
+                <i data-lucide="search" class="search-icon"></i>
+                <input type="text" id="admin-search-input" placeholder="ស្វែងរកតាមឈ្មោះ, លេខកុងទ័រ, អាសយដ្ឋាន..." oninput="filterCustomerTable()">
+              </div>
+
+              <div class="filter-group">
+                <select id="admin-month-filter" onchange="filterCustomerTable()">
+                  <option value="all">គ្រប់ខែទាំងអស់</option>
+                </select>
+
+                <select id="admin-status-filter" onchange="filterCustomerTable()">
+                  <option value="all">ស្ថានភាពទូទាត់ទាំងអស់</option>
+                  <option value="Completed">បានទូទាត់រួច (Paid)</option>
+                  <option value="Pending">រង់ចាំកត់ត្រា (Pending)</option>
+                  <option value="Failed">មិនទាន់ទូទាត់ (Unpaid)</option>
+                  <option value="Rejected">ត្រូវបានបដិសេធ (Rejected)</option>
+                </select>
+
+                <button class="btn btn-secondary" data-permission="exportReports" onclick="exportToCSV()">
+                  <i data-lucide="download"></i> ទាញយក CSV
+                </button>
+
+                <button class="btn btn-primary" data-permission="createPayment" onclick="switchTab('checkout'); restartIntake();">
+                  <i data-lucide="plus"></i> តភ្ជាប់កុងទ័រថ្មី
+                </button>
+              </div>
+            </div>
+
+            <!-- Customer Water Data Table -->
+            <div class="table-responsive">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>លេខវិក្កយបត្រ & កុងទ័រ</th>
+                    <th>ឈ្មោះអតិថិជន & អាសយដ្ឋាន</th>
+                    <th>ប្រភេទសេវាតភ្ជាប់</th>
+                    <th>បរិមាណទឹក (m³)</th>
+                    <th>ថ្លៃសេវាតភ្ជាប់</th>
+                    <th>ទឹកប្រាក់សរុប (៛)</th>
+                    <th>ស្ថានភាព</th>
+                    <th class="text-right">សកម្មភាព</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-table-body">
+                  <!-- Populated dynamically via app.js -->
+                </tbody>
+              </table>
+            </div>
+
+            <div class="table-footer">
+              <span id="table-record-count">បង្ហាញទិន្នន័យគីឡូទឹកអតិថិជន</span>
+              <div class="pagination-buttons">
+                <button class="btn-page" disabled><i data-lucide="chevron-left"></i></button>
+                <span class="page-num active">1</span>
+                <button class="btn-page" disabled><i data-lucide="chevron-right"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>© 2026 ស្ថានីយទឹកស្អាត AquaPure Water Station. ប្រព័ន្ធផ្គត់ផ្គង់ទឹកស្អាតតាមបណ្តាញទុយោផ្ទាល់ (ភ្ជាប់តាមផ្ទះ: 450,000 ៛ • រោងចក្រ: 1,500,000 ៛ • តម្លៃទឹក: 1 m³ = 2,500 ៛) & គ្រប់គ្រងគីឡូទឹក។</p>
+    </footer>
+  </div>
+
+  <!-- Manager Login Modal -->
+  <div id="login-modal" class="modal-overlay hidden">
+    <div class="modal-card modal-sm">
+      <div class="modal-header">
+        <h3><i data-lucide="lock" class="text-cyan"></i> ចូលប្រព័ន្ធប្រតិបត្តិការស្ថានីយ</h3>
+        <button class="btn-close" onclick="closeLoginModal()"><i data-lucide="x"></i></button>
+      </div>
+      <form onsubmit="handleLoginSubmit(event)">
+        <div class="modal-body">
+          <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 16px;">
+            សូមបញ្ចូលគណនីប្រតិបត្តិការដើម្បីគ្រប់គ្រងទិន្នន័យកុងទ័រទឹក, ថ្លៃសេវាតភ្ជាប់, វិក្កយបត្រប្រចាំខែ និងទាញយករាយការណ៍។
+          </p>
+
+          <div class="form-group">
+            <label for="loginEmail">អ៊ីមែលប្រតិបត្តិការ (Email)</label>
+            <div class="input-wrapper">
+              <i data-lucide="mail" class="input-icon"></i>
+              <input type="email" id="loginEmail" placeholder="admin@aquapure.kh" required value="admin@aquapure.kh">
+            </div>
+          </div>
+
+          <div class="form-group margin-top-md">
+            <label for="loginPassword">ពាក្យសម្ងាត់ (Password)</label>
+            <div class="input-wrapper">
+              <i data-lucide="key" class="input-icon"></i>
+              <input type="password" id="loginPassword" placeholder="••••••••" required value="admin123">
+            </div>
+          </div>
+
+          <div id="login-error-alert" class="alert alert-danger hidden margin-top-md">
+            <i data-lucide="alert-octagon"></i>
+            <span id="login-error-msg">ព័ត៌មានគណនីមិនត្រឹមត្រូវ។ សូមចុចប៊ូតុងសាកល្បង ១-Click Demo។</span>
+          </div>
+
+          <div class="demo-login-tip margin-top-md">
+            <i data-lucide="info" class="text-cyan"></i>
+            <span>Admin: <strong>admin@aquapure.kh</strong> / <strong>admin123</strong><br>Clerk: <strong>clerk@aquapure.kh</strong> / <strong>clerk123</strong><br>Finance: <strong>finance@aquapure.kh</strong> / <strong>finance123</strong><br>Normal User: <strong>user@aquapure.kh</strong> / <strong>user123</strong></span>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="quickDemoAdminLogin()">
+            <i data-lucide="zap"></i> សាកល្បង ១-Click Demo
+          </button>
+          <button type="button" class="btn btn-secondary" onclick="quickDemoClerkLogin()">
+            <i data-lucide="briefcase"></i> Clerk Demo
+          </button>
+          <button type="button" class="btn btn-secondary" onclick="quickDemoFinanceLogin()">
+            <i data-lucide="calculator"></i> Finance Demo
+          </button>
+          <button type="button" class="btn btn-secondary" onclick="quickDemoUserLogin()">
+            <i data-lucide="user"></i> User Demo
+          </button>
+          <button type="submit" class="btn btn-primary">
+            <i data-lucide="log-in"></i> ចូលប្រព័ន្ធ
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Customer Water Details Modal -->
+  <div id="contact-options-modal" class="modal-overlay hidden">
+    <div class="modal-card modal-sm">
+      <div class="modal-header">
+        <h3><i data-lucide="headphones" class="text-cyan"></i> ជ្រើសរើសវិធីទំនាក់ទំនង</h3>
+        <button class="btn-close" onclick="closeContactOptions()"><i data-lucide="x"></i></button>
+      </div>
+      <div class="modal-body contact-options-body">
+        <p>សូមជ្រើសរើសវិធីដែលអ្នកចង់ស្នើសុំសេវាកម្មពីក្រុមការងារ AquaPure។</p>
+        <a class="contact-option telegram" href="https://t.me/aquapure_support" target="_blank" rel="noopener noreferrer">
+          <span class="contact-option-icon"><i data-lucide="send"></i></span>
+          <span><strong>Telegram</strong><small>ផ្ញើសារទៅក្រុមការងារ</small></span>
+          <i data-lucide="external-link" class="contact-option-arrow"></i>
+        </a>
+        <a class="contact-option phone" href="tel:+85512345678">
+          <span class="contact-option-icon"><i data-lucide="phone"></i></span>
+          <span><strong>Phone Call</strong><small>+855 12 345 678</small></span>
+          <i data-lucide="arrow-right" class="contact-option-arrow"></i>
+        </a>
+        <a class="contact-option email" href="mailto:support@aquapure.kh?subject=AquaPure%20Service%20Request">
+          <span class="contact-option-icon"><i data-lucide="mail"></i></span>
+          <span><strong>Inbox via Email</strong><small>support@aquapure.kh</small></span>
+          <i data-lucide="arrow-right" class="contact-option-arrow"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Customer Water Details Modal -->
+  <div id="customer-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3><i data-lucide="git-merge" class="text-cyan"></i> ព័ត៌មានលម្អិតកុងទ័រទឹក & គណនីអតិថិជន</h3>
+        <button class="btn-close" onclick="closeCustomerModal()"><i data-lucide="x"></i></button>
+      </div>
+      <div class="modal-body" id="modal-customer-content">
+        <!-- Rendered dynamically -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeCustomerModal()">បិទ</button>
+        <button class="btn btn-primary" id="modal-print-btn"><i data-lucide="printer"></i> បោះពុម្ពវិក្កយបត្រ PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Email Receipt Modal -->
+  <div id="email-modal" class="modal-overlay hidden">
+    <div class="modal-card modal-sm">
+      <div class="modal-header">
+        <h3><i data-lucide="mail" class="text-cyan"></i> ផ្ញើវិក្កយបត្រតាមអ៊ីមែល</h3>
+        <button class="btn-close" onclick="closeEmailModal()"><i data-lucide="x"></i></button>
+      </div>
+      <div class="modal-body">
+        <p>ផ្ញើវិក្កយបត្រទឹកស្អាតឌីជីថល & វិញ្ញាបនបត្រគុណភាពទឹកទៅកាន់អ៊ីមែលអតិថិជន៖</p>
+        <div class="form-group margin-top-md">
+          <label for="emailModalTarget">អ៊ីមែលអ្នកទទួល (Email Address)</label>
+          <input type="email" id="emailModalTarget" placeholder="customer@example.com">
+        </div>
+        <div id="email-send-status" class="alert alert-success hidden">
+          <i data-lucide="check-circle"></i> វិក្កយបត្រត្រូវបានផ្ញើដោយជោគជ័យ!
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeEmailModal()">បោះបង់</button>
+        <button class="btn btn-primary" onclick="sendReceiptEmail()"><i data-lucide="send"></i> ផ្ញើអ៊ីមែល</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Application Database Engine -->
+  <script src="src/js/database.js"></script>
+  <!-- Application Script -->
+  <script src="src/js/app.js"></script>
+</body>
+</html>
