@@ -1873,6 +1873,105 @@ function exportToCSV() {
   document.body.removeChild(link);
 }
 
+function importCustomersFromExcel(event) {
+  if (!hasPermission('manageUsers')) {
+    alert('មានតែ Admin ប៉ុណ្ណោះដែលអាចនាំចូលទិន្នន័យអតិថិជនបាន។');
+    event.target.value = '';
+    return;
+  }
+
+  const file = event.target.files?.[0];
+  if (!file) return;
+  if (typeof XLSX === 'undefined') {
+    alert('មិនអាចផ្ទុកកម្មវិធីអាន Excel បានទេ។ សូមពិនិត្យការតភ្ជាប់អ៊ីនធឺណិត។');
+    event.target.value = '';
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = (loadEvent) => {
+    try {
+      const workbook = XLSX.read(loadEvent.target.result, { type: 'array', cellDates: true });
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+      const imported = rows.map(normalizeImportedCustomer).filter(customer => customer.name && customer.email);
+      if (!imported.length) {
+        alert('រកមិនឃើញទិន្នន័យត្រឹមត្រូវទេ។ ត្រូវមាន Customer Name និង Email។');
+        return;
+      }
+
+      const existingIds = new Set(appState.customers.map(customer => customer.id));
+      const newCustomers = imported.filter(customer => !existingIds.has(customer.id));
+      appState.customers = [...newCustomers, ...appState.customers];
+      saveCustomers();
+      renderPublicDashboard();
+      renderAdminMetrics();
+      renderMonthlyTotals();
+      populateMonthFilter();
+      renderAdminTable();
+      alert(`បាននាំចូល ${newCustomers.length} កំណត់ត្រាថ្មី។${imported.length - newCustomers.length ? ` រំលង ${imported.length - newCustomers.length} កំណត់ត្រាស្ទួន។` : ''}`);
+    } catch (error) {
+      console.error('Excel import failed:', error);
+      alert('ការនាំចូល Excel បរាជ័យ។ សូមពិនិត្យទម្រង់ឯកសារ។');
+    } finally {
+      event.target.value = '';
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function normalizeImportedCustomer(row) {
+  const get = (...keys) => {
+    const key = Object.keys(row).find(name => keys.includes(name.trim().toLowerCase()));
+    return key ? row[key] : '';
+  };
+  const date = get('date') || new Date().toISOString().replace('T', ' ').substring(0, 16);
+  const numeric = (value, fallback = 0) => Number.parseFloat(String(value).replace(/[^0-9.-]/g, '')) || fallback;
+  const id = String(get('bill id', 'id') || `BILL-${Math.floor(100000 + Math.random() * 900000)}`);
+  const cubicMeters = numeric(get('metered volume (m³)', 'cubic meters', 'cubicmeters', 'volume'), 0);
+  const amount = numeric(get('water cost (khr)', 'amount', 'water cost'), cubicMeters * RATE_PER_M3);
+  const connectionFee = numeric(get('connection fee (khr)', 'connection fee'), 0);
+  const total = numeric(get('total collected (khr)', 'total'), connectionFee + amount);
+  const status = ['Completed', 'Pending', 'Failed', 'Rejected'].includes(String(get('status'))) ? String(get('status')) : 'Pending';
+
+  return {
+    id,
+    meterId: String(get('meter id', 'meterid') || 'MTR-1082'),
+    name: String(get('customer name', 'name')),
+    email: String(get('email')).toLowerCase(),
+    phone: String(get('phone') || 'N/A'),
+    company: String(get('company') || ''),
+    address: String(get('property address', 'address') || ''),
+    city: String(get('city') || ''),
+    state: String(get('state') || ''),
+    zip: String(get('zip') || ''),
+    country: String(get('country') || 'កម្ពុជា (Cambodia)'),
+    serviceType: 'existing_bill',
+    serviceTypeName: String(get('service category', 'service type') || 'បង់ថ្លៃទឹកប្រចាំខែ (Monthly Usage)'),
+    connectionFee,
+    containerType: String(get('pipeline connection', 'container type') || 'ទុយោតាមផ្ទះ'),
+    deliverySlot: String(get('delivery slot') || 'វដ្តដើមខែ'),
+    cubicMeters,
+    notes: String(get('notes') || 'Imported from Excel'),
+    packageName: String(get('package name') || 'ការប្រើប្រាស់តាមផ្ទះ (Residential)'),
+    amount,
+    hasExpressAddon: false,
+    addonPrice: 0,
+    hasWashAddon: false,
+    washPrice: 0,
+    hasAlkalineAddon: false,
+    alkalinePrice: 0,
+    tax: 0,
+    total,
+    cardLast4: 'N/A',
+    cardBrand: 'Imported',
+    status,
+    date: String(date),
+    month: String(get('billing month', 'month') || date).substring(0, 7),
+    batchId: String(get('batch id') || 'IMPORTED')
+  };
+}
+
 function escapeHtml(str) {
   if (!str) return '';
   return String(str).replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;' })[m]);

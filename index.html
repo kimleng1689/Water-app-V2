@@ -12,6 +12,8 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Canvas Confetti CDN -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <!-- SheetJS Excel Reader -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <!-- Application Stylesheet -->
   <link rel="stylesheet" href="src/css/styles.css">
 </head>
@@ -1140,6 +1142,10 @@
                 <button class="btn btn-secondary" data-permission="exportReports" onclick="exportToCSV()">
                   <i data-lucide="download"></i> ទាញយក CSV
                 </button>
+                <button class="btn btn-secondary" data-permission="manageUsers" onclick="document.getElementById('customer-import-input').click()">
+                  <i data-lucide="file-up"></i> នាំចូល Excel
+                </button>
+                <input type="file" id="customer-import-input" accept=".xlsx,.xls,.csv" hidden onchange="importCustomersFromExcel(event)">
 
                 <button class="btn btn-primary" data-permission="createPayment" onclick="switchTab('checkout'); restartIntake();">
                   <i data-lucide="plus"></i> តភ្ជាប់កុងទ័រថ្មី
