@@ -68,6 +68,23 @@
   --shadow-lg: 0 18px 35px rgba(15, 23, 42, 0.12);
 }
 
+/* Sharpen muted labels against the light background without affecting dark mode. */
+[data-theme="light"] .brand-name,
+[data-theme="light"] .brand-tag,
+[data-theme="light"] .purity-status-bar,
+[data-theme="light"] .nav-btn,
+[data-theme="light"] .section-kicker,
+[data-theme="light"] .hero-badge,
+[data-theme="light"] .company-hero-copy,
+[data-theme="light"] .text-muted,
+[data-theme="light"] .text-secondary {
+  text-shadow:
+    0.35px 0 var(--bg-card),
+    -0.35px 0 var(--bg-card),
+    0 0.35px var(--bg-card),
+    0 -0.35px var(--bg-card);
+}
+
 /* Reset & Base Styles */
 * {
   margin: 0;
