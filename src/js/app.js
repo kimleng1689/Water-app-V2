@@ -127,7 +127,7 @@ const DEFAULT_CUSTOMERS = [
     containerType: "ទុយោរោងចក្រ/ការិយាល័យ (1\" Line)",
     deliverySlot: "វដ្តដើមខែ (ថ្ងៃទី ១ - ៥ ដើមខែ)",
     cubicMeters: 25.0,
-    notes: "បណ្តាញទុយោឧស្សាហកម្មខ្នាត 1\" បូមផ្ទាល់ពីស្ថានីយមេ AquaPure ចូលរោងចក្រ/អគារ។",
+    notes: "បណ្តាញទុយោឧស្សាហកម្មខ្នាត 1\" បូមផ្ទាល់ពីស្ថានីយមេ Dara Pichmony Water Station ចូលរោងចក្រ/អគារ។",
     packageName: "ការិយាល័យ/ពាណិជ្ជកម្ម (Commercial Office)",
     amount: 62500,
     hasExpressAddon: true,
@@ -600,7 +600,7 @@ function updateStep2FeeBanner() {
         if (price) price.textContent = formatRiel(FEE_HOME_CONNECT);
       } else {
         if (title) title.textContent = 'ថ្លៃសេវាទុយោផ្ទាល់រោងចក្រ (Factory Direct Line Fee)';
-        if (desc) desc.textContent = 'រួមបញ្ចូលបណ្តាញទុយោឧស្សាហកម្មកម្លាំងខ្នាត 1\" បូមផ្ទាល់ពីស្ថានីយមេ AquaPure ចូលរោងចក្រជាមួយនាឡិកាទឹកស្តង់ដារ។';
+        if (desc) desc.textContent = 'រួមបញ្ចូលបណ្តាញទុយោឧស្សាហកម្មកម្លាំងខ្នាត 1\" បូមផ្ទាល់ពីស្ថានីយមេ Dara Pichmony Water Station ចូលរោងចក្រជាមួយនាឡិកាទឹកស្តង់ដារ។';
         if (price) price.textContent = formatRiel(FEE_COMPANY_CONNECT);
       }
     }
@@ -1417,7 +1417,7 @@ function closeContactOptions() {
 
 function generateReceiptEmailBody(record) {
   return [
-    'AquaPure Water Service Receipt',
+    'Dara Pichmony Water Station Service Receipt',
     '',
     `Customer: ${record.name}`,
     `Email: ${record.email}`,
@@ -1432,14 +1432,14 @@ function generateReceiptEmailBody(record) {
     `Date: ${record.date}`,
     `Batch ID: ${record.batchId}`,
     '',
-    'Thank you for choosing AquaPure Water Station.',
-    'Powered by AquaPure Direct Water Network.'
+    'Thank you for choosing Dara Pichmony Water Station.',
+    'Powered by Dara Pichmony Direct Water Network.'
   ].join('\n');
 }
 
 function triggerMailtoReceipt(record) {
   const recipient = record.email || document.getElementById('emailModalTarget')?.value.trim() || 'support@aquapure.kh';
-  const subject = encodeURIComponent(`AquaPure Water Receipt - ${record.id}`);
+  const subject = encodeURIComponent(`Dara Pichmony Water Receipt - ${record.id}`);
   const body = encodeURIComponent(generateReceiptEmailBody(record));
   const mailtoLink = `mailto:${recipient}?subject=${subject}&body=${body}`;
 
@@ -1453,10 +1453,10 @@ async function sendInvoiceToGmail(record) {
 
   const payload = {
     to: recipient,
-    subject: `AquaPure Digital Invoice - ${record.id}`,
+    subject: `Dara Pichmony Digital Invoice - ${record.id}`,
     html: `
       <div style="font-family: Arial, sans-serif; color: #0f172a; max-width: 640px; margin: 0 auto; background: #f8fafc; padding: 24px; border-radius: 12px;">
-        <h2 style="color:#0284C7; margin-bottom: 12px;">AquaPure Water Station</h2>
+        <h2 style="color:#0284C7; margin-bottom: 12px;">Dara Pichmony Water Station</h2>
         <p><strong>Invoice:</strong> ${record.id}</p>
         <p><strong>Customer:</strong> ${record.name}</p>
         <p><strong>Meter ID:</strong> ${record.meterId}</p>
@@ -1465,11 +1465,11 @@ async function sendInvoiceToGmail(record) {
         <p><strong>Total Paid:</strong> ${formatRiel(record.total)}</p>
         <p><strong>Status:</strong> ${record.status}</p>
         <hr />
-        <p>Thank you for using AquaPure direct water supply service.</p>
+        <p>Thank you for using Dara Pichmony direct water supply service.</p>
       </div>
     `,
-    text: `AquaPure Digital Invoice\n\nInvoice: ${record.id}\nCustomer: ${record.name}\nMeter ID: ${record.meterId}\nTotal Paid: ${formatRiel(record.total)}\nStatus: ${record.status}`,
-    telegramMessage: `AquaPure New Customer Registration\n\nInvoice: ${record.id}\nCustomer: ${record.name}\nMeter ID: ${record.meterId}\nService: ${record.serviceTypeName}\nTotal: ${formatRiel(record.total)}\nStatus: ${record.status}\nDate: ${record.date}`
+    text: `Dara Pichmony Digital Invoice\n\nInvoice: ${record.id}\nCustomer: ${record.name}\nMeter ID: ${record.meterId}\nTotal Paid: ${formatRiel(record.total)}\nStatus: ${record.status}`,
+    telegramMessage: `Dara Pichmony New Customer Registration\n\nInvoice: ${record.id}\nCustomer: ${record.name}\nMeter ID: ${record.meterId}\nService: ${record.serviceTypeName}\nTotal: ${formatRiel(record.total)}\nStatus: ${record.status}\nDate: ${record.date}`
   };
 
   try {
@@ -1506,7 +1506,7 @@ function sendReceiptEmail() {
 
   const record = {
     id: 'MANUAL-' + Date.now(),
-    name: appState.formData.fullName || 'AquaPure Customer',
+    name: appState.formData.fullName || 'Dara Pichmony Customer',
     email: targetEmail,
     meterId: appState.formData.meterId || 'MTR-1082',
     serviceTypeName: appState.formData.serviceTypeName || 'Water Service',
@@ -1836,6 +1836,34 @@ function closeCustomerModal() {
   if (modal) modal.classList.add('hidden');
 }
 
+function openImportModal() {
+  const modal = document.getElementById('import-modal');
+  if (modal) modal.classList.remove('hidden');
+}
+
+function closeImportModal() {
+  const modal = document.getElementById('import-modal');
+  if (modal) modal.classList.add('hidden');
+}
+
+function downloadImportTemplate() {
+  const csv = [
+    'Customer Name,Email,Phone Number,Property Address,Pipeline Connection,Service Category,Connection Fee (KHR),Metered Volume (m³),Water Cost (KHR),Total Collected (KHR),Status,Date,Billing Month,Meter ID,Bill ID',
+    'Sok Piseth,piseth@example.com,+855 12 333 444,House 742 Street 63,Home Connection,Monthly Usage,0,12.5,31250,31250,Completed,2026-08-13,2026-08,MTR-1001,BILL-111111',
+    'Chan Sopheak,sopheak@company.com,+855 23 890 123,Building 118 Main Road,Factory Direct,Monthly Usage,1500000,25,62500,1581500,Completed,2026-08-12,2026-08,MTR-2041,BILL-111112'
+  ].join('\n');
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'Dara_Pichmony_customer_import_template.csv';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
 // --- Export CSV Report ---
 function exportToCSV() {
   if (!hasPermission('exportReports')) {
@@ -1867,7 +1895,7 @@ function exportToCSV() {
   const csv = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
   const link = document.createElement("a");
   link.setAttribute("href", encodeURI(csv));
-  link.setAttribute("download", `AquaPure_Piped_Water_Monthly_Report_${new Date().toISOString().substring(0,10)}.csv`);
+  link.setAttribute("download", `Dara_Pichmony_Piped_Water_Monthly_Report_${new Date().toISOString().substring(0,10)}.csv`);
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
@@ -1886,6 +1914,11 @@ function importCustomersFromExcel(event) {
     alert('មិនអាចផ្ទុកកម្មវិធីអាន Excel បានទេ។ សូមពិនិត្យការតភ្ជាប់អ៊ីនធឺណិត។');
     event.target.value = '';
     return;
+  }
+
+  const input = document.getElementById('customer-import-file-input');
+  if (input && input.files && input.files.length) {
+    input.value = '';
   }
 
   const reader = new FileReader();
@@ -1909,51 +1942,81 @@ function importCustomersFromExcel(event) {
       renderMonthlyTotals();
       populateMonthFilter();
       renderAdminTable();
+      closeImportModal();
       alert(`បាននាំចូល ${newCustomers.length} កំណត់ត្រាថ្មី។${imported.length - newCustomers.length ? ` រំលង ${imported.length - newCustomers.length} កំណត់ត្រាស្ទួន។` : ''}`);
     } catch (error) {
       console.error('Excel import failed:', error);
       alert('ការនាំចូល Excel បរាជ័យ។ សូមពិនិត្យទម្រង់ឯកសារ។');
     } finally {
       event.target.value = '';
+      if (input) input.value = '';
     }
   };
   reader.readAsArrayBuffer(file);
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+  const importFileInput = document.getElementById('customer-import-file-input');
+  if (importFileInput) {
+    importFileInput.addEventListener('change', (event) => {
+      if (event.target.files && event.target.files.length) {
+        const hiddenInput = document.getElementById('customer-import-input');
+        if (hiddenInput) {
+          hiddenInput.files = event.target.files;
+          importCustomersFromExcel({ target: hiddenInput });
+        }
+      }
+    });
+  }
+});
+
+
 function normalizeImportedCustomer(row) {
+  const normalizeKey = (key) => String(key || '').trim().toLowerCase().replace(/[\s_\-]+/g, ' ');
   const get = (...keys) => {
-    const key = Object.keys(row).find(name => keys.includes(name.trim().toLowerCase()));
-    return key ? row[key] : '';
+    const aliases = keys.map(normalizeKey);
+    const matchedKey = Object.keys(row).find(name => aliases.includes(normalizeKey(name)));
+    return matchedKey !== undefined ? row[matchedKey] : '';
   };
-  const date = get('date') || new Date().toISOString().replace('T', ' ').substring(0, 16);
-  const numeric = (value, fallback = 0) => Number.parseFloat(String(value).replace(/[^0-9.-]/g, '')) || fallback;
-  const id = String(get('bill id', 'id') || `BILL-${Math.floor(100000 + Math.random() * 900000)}`);
-  const cubicMeters = numeric(get('metered volume (m³)', 'cubic meters', 'cubicmeters', 'volume'), 0);
-  const amount = numeric(get('water cost (khr)', 'amount', 'water cost'), cubicMeters * RATE_PER_M3);
-  const connectionFee = numeric(get('connection fee (khr)', 'connection fee'), 0);
-  const total = numeric(get('total collected (khr)', 'total'), connectionFee + amount);
-  const status = ['Completed', 'Pending', 'Failed', 'Rejected'].includes(String(get('status'))) ? String(get('status')) : 'Pending';
+
+  const dateValue = get('date', 'invoice date', 'billing date', 'created at') || new Date().toISOString().replace('T', ' ').substring(0, 16);
+  const numeric = (value, fallback = 0) => {
+    if (value === null || value === undefined || value === '') return fallback;
+    const num = Number.parseFloat(String(value).replace(/[^0-9.-]/g, ''));
+    return Number.isFinite(num) ? num : fallback;
+  };
+
+  const id = String(get('bill id', 'billid', 'invoice id', 'id') || `BILL-${Math.floor(100000 + Math.random() * 900000)}`);
+  const cubicMeters = numeric(get('metered volume (m³)', 'metered volume', 'cubic meters', 'cubicmeters', 'volume', 'usage m3', 'volume (m3)'), 0);
+  const amount = numeric(get('water cost (khr)', 'water cost', 'amount', 'water amount', 'monthly bill'), cubicMeters * RATE_PER_M3);
+  const connectionFee = numeric(get('connection fee (khr)', 'connection fee', 'service fee', 'setup fee'), 0);
+  const total = numeric(get('total collected (khr)', 'total', 'total amount', 'amount due'), connectionFee + amount);
+  const statusValue = String(get('status', 'payment status', 'billing status') || 'Pending');
+  const status = ['Completed', 'Pending', 'Failed', 'Rejected'].includes(statusValue) ? statusValue : 'Pending';
+
+  const customerName = String(get('customer name', 'customername', 'customer', 'name', 'full name') || '').trim();
+  const customerEmail = String(get('email', 'email address', 'e mail', 'customer email') || '').trim().toLowerCase();
 
   return {
     id,
-    meterId: String(get('meter id', 'meterid') || 'MTR-1082'),
-    name: String(get('customer name', 'name')),
-    email: String(get('email')).toLowerCase(),
-    phone: String(get('phone') || 'N/A'),
-    company: String(get('company') || ''),
-    address: String(get('property address', 'address') || ''),
+    meterId: String(get('meter id', 'meterid', 'meter number', 'meter no') || 'MTR-1082'),
+    name: customerName,
+    email: customerEmail,
+    phone: String(get('phone', 'phone number', 'mobile', 'mobile number') || 'N/A'),
+    company: String(get('company', 'customer company', 'organization') || ''),
+    address: String(get('property address', 'address', 'customer address', 'location') || ''),
     city: String(get('city') || ''),
     state: String(get('state') || ''),
-    zip: String(get('zip') || ''),
+    zip: String(get('zip', 'postal code') || ''),
     country: String(get('country') || 'កម្ពុជា (Cambodia)'),
     serviceType: 'existing_bill',
-    serviceTypeName: String(get('service category', 'service type') || 'បង់ថ្លៃទឹកប្រចាំខែ (Monthly Usage)'),
+    serviceTypeName: String(get('service category', 'service type', 'billing type') || 'បង់ថ្លៃទឹកប្រចាំខែ (Monthly Usage)'),
     connectionFee,
-    containerType: String(get('pipeline connection', 'container type') || 'ទុយោតាមផ្ទះ'),
-    deliverySlot: String(get('delivery slot') || 'វដ្តដើមខែ'),
+    containerType: String(get('pipeline connection', 'container type', 'connection type', 'pipe type') || 'ទុយោតាមផ្ទះ'),
+    deliverySlot: String(get('delivery slot', 'slot') || 'វដ្តដើមខែ'),
     cubicMeters,
-    notes: String(get('notes') || 'Imported from Excel'),
-    packageName: String(get('package name') || 'ការប្រើប្រាស់តាមផ្ទះ (Residential)'),
+    notes: String(get('notes', 'remarks', 'comment') || 'Imported from Excel'),
+    packageName: String(get('package name', 'plan name') || 'ការប្រើប្រាស់តាមផ្ទះ (Residential)'),
     amount,
     hasExpressAddon: false,
     addonPrice: 0,
@@ -1966,9 +2029,9 @@ function normalizeImportedCustomer(row) {
     cardLast4: 'N/A',
     cardBrand: 'Imported',
     status,
-    date: String(date),
-    month: String(get('billing month', 'month') || date).substring(0, 7),
-    batchId: String(get('batch id') || 'IMPORTED')
+    date: String(dateValue),
+    month: String(get('billing month', 'month', 'bill month') || dateValue).substring(0, 7),
+    batchId: String(get('batch id', 'batchid') || 'IMPORTED')
   };
 }
 

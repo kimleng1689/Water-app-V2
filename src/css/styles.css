@@ -1,65 +1,71 @@
 /* ==========================================================================
-   AquaPure Water Station | Simple, Clean & Modern Design System
+  Dara Pichmony Water Station | Simple, Clean & Modern Design System
    ========================================================================== */
 
 :root {
-  /* Dark Mode (Sleek Slate & Modern Sky Blue) */
-  --bg-main: #0B132B;
-  --bg-card: #1C2541;
-  --bg-card-solid: #1C2541;
-  --bg-card-hover: #232F52;
-  --bg-input: #121B35;
-  --border-color: #2E3C64;
-  --border-focus: #38BDF8;
-  
-  --text-primary: #F8FAFC;
-  --text-secondary: #94A3B8;
-  --text-muted: #64748B;
-  
-  --color-primary: #0284C7;
-  --color-primary-hover: #0369A1;
-  --color-cyan: #38BDF8;
-  --color-blue: #0284C7;
-  --color-success: #10B981;
-  --color-success-hover: #059669;
-  --color-danger: #EF4444;
-  --color-warning: #F59E0B;
-  --color-purple: #8B5CF6;
-  
+  /* Dark Mode: near-black surfaces with cool cyan accents */
+  --bg-main: #05070B;
+  --bg-card: #0C1117;
+  --bg-card-solid: #111827;
+  --bg-card-hover: #151E2A;
+  --bg-input: #0B1016;
+  --border-color: #1E2A36;
+  --border-focus: #22D3EE;
+
+  --text-primary: #F5F7FA;
+  --text-secondary: #B5C2D1;
+  --text-muted: #7F8EA3;
+
+  --color-primary: #22D3EE;
+  --color-primary-hover: #67E8F9;
+  --color-cyan: #67E8F9;
+  --color-blue: #38BDF8;
+  --color-success: #34D399;
+  --color-success-hover: #10B981;
+  --color-danger: #F87171;
+  --color-warning: #FBBF24;
+  --color-purple: #A78BFA;
+
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 14px;
   --radius-full: 9999px;
-  
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.25);
-  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.35);
-  
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.38);
+  --shadow-md: 0 8px 20px rgba(0, 0, 0, 0.42);
+  --shadow-lg: 0 18px 45px rgba(0, 0, 0, 0.5);
+
   --transition-fast: 0.15s ease;
   --transition-normal: 0.2s ease;
 }
 
-/* Light Theme Variables Override (Clean Slate & Pure White) */
+/* Light Theme: clean, airy, and easy to read */
 [data-theme="light"] {
-  --bg-main: #F8FAFC;
+  --bg-main: #F3F7FB;
   --bg-card: #FFFFFF;
   --bg-card-solid: #FFFFFF;
-  --bg-card-hover: #F1F5F9;
-  --bg-input: #FFFFFF;
-  --border-color: #E2E8F0;
-  --border-focus: #0284C7;
+  --bg-card-hover: #EEF5FF;
+  --bg-input: #F8FAFC;
+  --border-color: #DCE6F1;
+  --border-focus: #0EA5E9;
 
   --text-primary: #0F172A;
   --text-secondary: #475569;
   --text-muted: #64748B;
 
-  --color-primary: #0284C7;
-  --color-primary-hover: #0369A1;
-  --color-cyan: #0284C7;
+  --color-primary: #0EA5E9;
+  --color-primary-hover: #0284C7;
+  --color-cyan: #0EA5E9;
+  --color-blue: #2563EB;
+  --color-success: #10B981;
+  --color-success-hover: #059669;
+  --color-danger: #EF4444;
+  --color-warning: #F59E0B;
+  --color-purple: #8B5CF6;
 
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.08);
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.05);
+  --shadow-md: 0 8px 18px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 18px 35px rgba(15, 23, 42, 0.12);
 }
 
 /* Reset & Base Styles */

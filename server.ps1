@@ -1,4 +1,4 @@
-# AquaPure Water Station - Reliable Web Server Runner
+# Dara Pichmony Water Station - Reliable Web Server Runner
 $port = 5500
 $path = $PSScriptRoot
 
@@ -13,7 +13,7 @@ public class AquaServer {
         var listener = new HttpListener();
         listener.Prefixes.Add("http://localhost:" + port + "/");
         listener.Start();
-        Console.WriteLine("AQUAPURE_STARTED:" + port);
+        Console.WriteLine("DARA_PICHMONY_STARTED:" + port);
 
         while (listener.IsListening) {
             HttpListenerContext ctx;
@@ -66,6 +66,6 @@ public class AquaServer {
 }
 "@
 
-Write-Host "💧 AquaPure Water Station starting on http://localhost:$port/" -ForegroundColor Cyan
+Write-Host "💧 Dara Pichmony Water Station starting on http://localhost:$port/" -ForegroundColor Cyan
 Start-Process "http://localhost:$port/"
 [AquaServer]::Run($path, $port)

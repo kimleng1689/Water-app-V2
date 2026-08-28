@@ -40,7 +40,7 @@ def send_invoice_email(to_email: str, subject: str, html_body: str, text_body: s
     msg['Subject'] = subject
     msg['From'] = EMAIL_FROM or SMTP_USER
     msg['To'] = to_email
-    msg.set_content(text_body or 'AquaPure Digital Invoice')
+    msg.set_content(text_body or 'Dara Pichmony Digital Invoice')
     msg.add_alternative(html_body or text_body, subtype='html')
 
     with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
@@ -86,7 +86,7 @@ class InvoiceHandler(BaseHTTPRequestHandler):
             self.send_response(200)
             self.send_header('Content-Type', 'application/json; charset=utf-8')
             self.end_headers()
-            self.wfile.write(json.dumps({'ok': True, 'message': 'AquaPure invoice server is running'}).encode('utf-8'))
+            self.wfile.write(json.dumps({'ok': True, 'message': 'Dara Pichmony invoice server is running'}).encode('utf-8'))
             return
 
         self.send_response(404)
@@ -116,10 +116,10 @@ class InvoiceHandler(BaseHTTPRequestHandler):
             return
 
         to_email = (data.get('to') or '').strip()
-        subject = (data.get('subject') or 'AquaPure Digital Invoice').strip()
+        subject = (data.get('subject') or 'Dara Pichmony Digital Invoice').strip()
         html_body = data.get('html', '')
         text_body = data.get('text', '')
-        telegram_message = data.get('telegramMessage') or text_body or f'AquaPure invoice: {subject}'
+        telegram_message = data.get('telegramMessage') or text_body or f'Dara Pichmony invoice: {subject}'
 
         if not to_email:
             self.send_response(400)
@@ -159,11 +159,11 @@ class InvoiceHandler(BaseHTTPRequestHandler):
 
 
 if __name__ == '__main__':
-    print(f'AquaPure invoice backend starting on http://localhost:{PORT}')
+    print(f'Dara Pichmony invoice backend starting on http://localhost:{PORT}')
     server = HTTPServer(('0.0.0.0', PORT), InvoiceHandler)
     try:
         server.serve_forever()
     except KeyboardInterrupt:
-        print('\nStopping AquaPure invoice backend...')
+        print('\nStopping Dara Pichmony invoice backend...')
     finally:
         server.server_close()

@@ -13,7 +13,7 @@ app.use(express.json({ limit: '2mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 app.get('/health', (req, res) => {
-  res.json({ ok: true, message: 'AquaPure email service is running' });
+  res.json({ ok: true, message: 'Dara Pichmony email service is running' });
 });
 
 app.post('/api/send-invoice', async (req, res) => {
@@ -40,8 +40,8 @@ app.post('/api/send-invoice', async (req, res) => {
       from: process.env.EMAIL_FROM || process.env.SMTP_USER,
       to,
       subject,
-      text: text || 'Your AquaPure invoice is ready.',
-      html: html || `<p>Your AquaPure invoice is ready.</p>`,
+      text: text || 'Your Dara Pichmony invoice is ready.',
+      html: html || `<p>Your Dara Pichmony invoice is ready.</p>`,
     };
 
     const info = await transporter.sendMail(mailOptions);
@@ -62,5 +62,5 @@ app.post('/api/send-invoice', async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`AquaPure email backend running on http://localhost:${PORT}`);
+  console.log(`Dara Pichmony email backend running on http://localhost:${PORT}`);
 });

@@ -27,7 +27,7 @@ class AquaDatabase {
         ratePerM3: 2500,
         feeHomeConnect: 450000,
         feeCompanyConnect: 1500000,
-        stationName: 'ស្ថានីយទឹកស្អាត AquaPure',
+        stationName: 'Dara Pichmony Water Station',
         currency: '៛'
       };
       localStorage.setItem(DB_KEY_SETTINGS, JSON.stringify(defaultSettings));
