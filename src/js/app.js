@@ -1318,6 +1318,7 @@ function completeSuccessfulPayment() {
     const pendingAlert = document.getElementById('payment-error-alert');
     const pendingMsg = document.getElementById('payment-error-msg');
     if (pendingAlert && pendingMsg) {
+<<<<<<< HEAD
       pendingMsg.textContent = 'ការចុះឈ្មោះបានបញ្ចប់។ សំណើរនេះត្រូវបានកត់ត្រា និងបានជូនដំណឹងទៅ Telegram រួចរាល់។';
       pendingAlert.classList.remove('hidden');
     }
@@ -1335,6 +1336,28 @@ function completeSuccessfulPayment() {
       }
     } else {
       if (recordStatus !== 'Pending' && errorAlert) errorAlert.classList.add('hidden');
+=======
+      pendingMsg.textContent = 'ការចុះឈ្មោះបានបញ្ចប់។ សំណើរនេះកំពុងរង់ចាំ Admin អនុម័ត មុនពេលផ្ញើវិក្កយបត្រ។';
+      pendingAlert.classList.remove('hidden');
+    }
+  } else sendInvoiceToGmail(record).then((result) => {
+    const errorAlert = document.getElementById('payment-error-alert');
+    const errorMsg = document.getElementById('payment-error-msg');
+
+    if (!result.success) {
+      console.warn('Invoice email failed in backend:', result.data || result.reason || 'unknown error');
+      if (errorAlert && errorMsg) {
+        errorMsg.textContent = 'Invoice email did not send. Please configure the Gmail App Password in the backend before testing live invoices.';
+        errorAlert.classList.remove('hidden');
+      }
+      try {
+        triggerMailtoReceipt(record);
+      } catch (error) {
+        console.warn('Email client fallback was blocked by the browser:', error);
+      }
+    } else {
+      if (errorAlert) errorAlert.classList.add('hidden');
+>>>>>>> e1f16b1aa10fa2f5caaa31f9b790a192c4118062
     }
   });
 
@@ -1445,6 +1468,7 @@ function triggerMailtoReceipt(record) {
 }
 
 async function sendInvoiceToGmail(record) {
+<<<<<<< HEAD
   const recipient = (record && record.email) || appState.formData.email || document.getElementById('emailModalTarget')?.value.trim() || 'customer@aquapure.kh';
   const statusLabel = getStatusLabel(record.status);
   const statusEmoji = record.status === 'Completed' ? '✅' : (record.status === 'Pending' ? '⏳' : '⚠️');
@@ -1540,10 +1564,15 @@ async function sendInvoiceToGmail(record) {
     </body>
     </html>
   `;
+=======
+  const recipient = (record && record.email) || appState.formData.email || document.getElementById('emailModalTarget')?.value.trim();
+  if (!recipient) return { success: false, reason: 'No recipient email' };
+>>>>>>> e1f16b1aa10fa2f5caaa31f9b790a192c4118062
 
   const payload = {
     to: recipient,
     subject: `Dara Pichmony Digital Invoice - ${record.id}`,
+<<<<<<< HEAD
     html: emailHtml,
     text: `Dara Pichmony Digital Invoice\n\nInvoice: ${record.id}\nCustomer: ${record.name}\nMeter ID: ${record.meterId}\nTotal Paid: ${totalRiel}\nStatus: ${record.status}`,
     telegramMessage: telegramHtml
@@ -1568,11 +1597,45 @@ async function sendInvoiceToGmail(record) {
     const data = await response.json();
     if (!response.ok || !data.success) {
       return { success: false, data, reason: data.message || 'Notification backend warning', recipient };
+=======
+    html: `
+      <div style="font-family: Arial, sans-serif; color: #0f172a; max-width: 640px; margin: 0 auto; background: #f8fafc; padding: 24px; border-radius: 12px;">
+        <h2 style="color:#0284C7; margin-bottom: 12px;">Dara Pichmony Water Station</h2>
+        <p><strong>Invoice:</strong> ${record.id}</p>
+        <p><strong>Customer:</strong> ${record.name}</p>
+        <p><strong>Meter ID:</strong> ${record.meterId}</p>
+        <p><strong>Service:</strong> ${record.serviceTypeName}</p>
+        <p><strong>Address:</strong> ${record.address}</p>
+        <p><strong>Total Paid:</strong> ${formatRiel(record.total)}</p>
+        <p><strong>Status:</strong> ${record.status}</p>
+        <hr />
+        <p>Thank you for using Dara Pichmony direct water supply service.</p>
+      </div>
+    `,
+    text: `Dara Pichmony Digital Invoice\n\nInvoice: ${record.id}\nCustomer: ${record.name}\nMeter ID: ${record.meterId}\nTotal Paid: ${formatRiel(record.total)}\nStatus: ${record.status}`,
+    telegramMessage: `Dara Pichmony New Customer Registration\n\nInvoice: ${record.id}\nCustomer: ${record.name}\nMeter ID: ${record.meterId}\nService: ${record.serviceTypeName}\nTotal: ${formatRiel(record.total)}\nStatus: ${record.status}\nDate: ${record.date}`
+  };
+
+  try {
+    const response = await fetch('http://localhost:5000/api/send-invoice', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await response.json();
+    if (!response.ok || !data.success) {
+      return { success: false, data, reason: data.message || 'Email backend rejected the request', recipient };
+>>>>>>> e1f16b1aa10fa2f5caaa31f9b790a192c4118062
     }
 
     return { success: true, data, recipient };
   } catch (error) {
+<<<<<<< HEAD
     console.warn('Backend notification request failed:', error);
+=======
+    console.warn('Backend email request failed:', error);
+>>>>>>> e1f16b1aa10fa2f5caaa31f9b790a192c4118062
     return { success: false, reason: error.message, recipient };
   }
 }
