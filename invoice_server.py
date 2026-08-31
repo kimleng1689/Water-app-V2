@@ -55,9 +55,9 @@ def send_telegram_alert(message: str):
     if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
         raise RuntimeError('Telegram settings are missing. Set TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID.')
 
-    url = f'https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage'
+    url = f'https://api.telegram.org/bot{7333913194:AAGRlt0taKxivhRjbkISqVzWJygOJs3n5pw}/sendMessage'
     payload = json.dumps({
-        'chat_id': TELEGRAM_CHAT_ID,
+        'chat_id': 1002860171047,
         'text': message,
         'disable_web_page_preview': True
     }).encode('utf-8')
