@@ -1,0 +1,8 @@
+[POST] to_email='darapichmony@dpws.com.kh', SMTP_USER='darapichmony111@gmail.com', SMTP_PASS='vlohrrjditifjqlr', condition=True
+[POST] to_email='darapichmony@dpws.com.kh', SMTP_USER='darapichmony111@gmail.com', SMTP_PASS='vlohrrjditifjqlr', condition=True
+[POST] to_email='darapichmony@dpws.com.kh', SMTP_USER='darapichmony111@gmail.com', SMTP_PASS='vlohrrjditifjqlr', condition=True
+[POST] to_email='moungkimlengfinal@gmail.com', SMTP_USER='darapichmony111@gmail.com', SMTP_PASS='vlohrrjditifjqlr', condition=True
+[POST] to_email='moungkimleng111@gmail.com', SMTP_USER='darapichmony111@gmail.com', SMTP_PASS='vlohrrjditifjqlr', condition=True
+[POST] to_email='moungkimlengfinal@gmail.com', SMTP_USER='darapichmony111@gmail.com', SMTP_PASS='vlohrrjditifjqlr', condition=True
+[POST] to_email='moungkimleng111@gmail.com', SMTP_USER='darapichmony111@gmail.com', SMTP_PASS='vlohrrjditifjqlr', condition=True
+[POST] to_email='moungkimleng111@gmail.com', SMTP_USER='darapichmony111@gmail.com', SMTP_PASS='vlohrrjditifjqlr', condition=True

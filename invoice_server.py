@@ -1,6 +1,7 @@
 import json
 import os
 import smtplib
+import sys
 import urllib.request
 import urllib.error
 from email.message import EmailMessage
@@ -17,7 +18,11 @@ def load_env_file(path='.env'):
             if not line or line.startswith('#') or '=' not in line:
                 continue
             key, value = line.split('=', 1)
-            os.environ[key.strip()] = value.strip().strip('"').strip("'")
+            key_clean = key.strip()
+            value_clean = value.strip().strip('"').strip("'")
+            os.environ[key_clean] = value_clean
+            if 'SMTP' in key or 'PASS' in key:
+                print(f'[ENV] {key_clean}={value_clean[:30]}...' if len(value_clean) > 30 else f'[ENV] {key_clean}={value_clean}')
 
 
 load_env_file()
@@ -31,6 +36,12 @@ EMAIL_FROM = os.getenv('EMAIL_FROM', SMTP_USER)
 PORT = int(os.getenv('PORT', '5001'))
 TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '7333913194:AAGRlt0taKxivhRjbkISqVzWJygOJs3n5pw')
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID', '-1002860171047')
+
+# Debug: Log loaded credentials at startup
+if SMTP_USER and SMTP_PASS:
+    print(f'[INFO] SMTP configured: {SMTP_USER} (password: {len(SMTP_PASS)} chars)')
+else:
+    print(f'[WARNING] SMTP not configured - SMTP_USER: {SMTP_USER}, SMTP_PASS: {bool(SMTP_PASS)}')
 
 
 def send_invoice_email(to_email: str, subject: str, html_body: str, text_body: str):
@@ -149,6 +160,13 @@ class InvoiceHandler(BaseHTTPRequestHandler):
             self._send_json_response(200, {'ok': True, 'message': 'Dara Pichmony invoice server is running'})
             return
 
+        if parsed.path in ('/api/send-invoice', '/api/send-telegram'):
+            self._send_json_response(405, {
+                'success': False,
+                'message': 'This endpoint requires POST. The browser must send JSON via POST, not open the URL directly.'
+            })
+            return
+
         self._send_json_response(404, {'ok': False, 'message': 'Not found'})
 
     def do_POST(self):
@@ -178,6 +196,15 @@ class InvoiceHandler(BaseHTTPRequestHandler):
         email_attempted = bool(to_email)
         email_sent = False
 
+        # Debug logging to file with absolute path
+        try:
+            debug_file = r'e:\Water-app-V2-main\debug_post.txt'
+            with open(debug_file, 'a', encoding='utf-8') as f:
+                f.write(f'[POST] to_email={repr(to_email)}, SMTP_USER={repr(SMTP_USER)}, SMTP_PASS={repr(SMTP_PASS)}, condition={bool(to_email and SMTP_USER and SMTP_PASS)}\n')
+        except Exception as e:
+            with open(r'e:\Water-app-V2-main\debug_error.txt', 'a') as f:
+                f.write(f'Debug write error: {e}\n')
+        
         if to_email and SMTP_USER and SMTP_PASS:
             try:
                 send_invoice_email(to_email, subject, html_body, text_body)
@@ -185,7 +212,7 @@ class InvoiceHandler(BaseHTTPRequestHandler):
             except Exception as exc:
                 email_error = str(exc)
         elif to_email:
-            email_error = 'Company SMTP credentials not set (skipped)'
+            email_error = 'Gmail SMTP credentials not set (skipped)'
         elif parsed.path == '/api/send-invoice':
             email_error = 'No recipient email provided (skipped)'
 
