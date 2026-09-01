@@ -71,6 +71,31 @@ function getStatusLabel(status) {
   return 'រង់ចាំ (Pending)';
 }
 
+function formatLocalDateTime(date = new Date()) {
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Asia/Bangkok',
+    day: '2-digit',
+    month: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  });
+
+  const parts = formatter.formatToParts(date);
+  const values = {};
+  parts.forEach((part) => {
+    if (part.type !== 'literal') values[part.type] = part.value;
+  });
+
+  const month = values.month || '00';
+  const day = values.day || '00';
+  const hour = values.hour || '00';
+  const minute = values.minute || '00';
+  const period = values.dayPeriod || 'AM';
+
+  return `${day}/${month} | ${hour}:${minute} ${period.toLowerCase()}`;
+}
+
 // --- Default Piped Water Customer Dataset (Connections & Meter Billing) ---
 const DEFAULT_CUSTOMERS = [
   {
@@ -431,8 +456,35 @@ let appState = {
 };
 
 // Initialize App on DOM Ready
+function initDashboardSlides() {
+  const slides = Array.from(document.querySelectorAll('.hero-slide'));
+  const dots = Array.from(document.querySelectorAll('.slide-dot'));
+  if (!slides.length) return;
+
+  let activeIndex = 0;
+  const showSlide = (nextIndex) => {
+    activeIndex = nextIndex;
+    slides.forEach((slide, index) => {
+      slide.classList.toggle('active', index === activeIndex);
+    });
+    dots.forEach((dot, index) => {
+      dot.classList.toggle('active', index === activeIndex);
+    });
+  };
+
+  dots.forEach((dot, index) => {
+    dot.addEventListener('click', () => showSlide(index));
+  });
+
+  setInterval(() => {
+    const nextIndex = (activeIndex + 1) % slides.length;
+    showSlide(nextIndex);
+  }, 3500);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
+  initDashboardSlides();
   recalculateTotals();
   renderPublicDashboard();
   renderAdminMetrics();
@@ -1245,8 +1297,7 @@ function getCurrentMonth() {
 
 function recordFailedTransaction(reason) {
   const txnId = "BILL-" + Math.floor(100000 + Math.random() * 900000);
-  const now = new Date();
-  const dateStr = now.toISOString().replace('T', ' ').substring(0, 16);
+  const dateStr = formatLocalDateTime();
 
   const record = buildRecord(txnId, dateStr, "Failed", `មិនជោគជ័យ: ${reason}។ ${appState.formData.notes}`);
   appState.customers.unshift(record);
@@ -1256,8 +1307,7 @@ function recordFailedTransaction(reason) {
 
 function completeSuccessfulPayment() {
   const txnId = "BILL-" + Math.floor(100000 + Math.random() * 900000);
-  const now = new Date();
-  const dateStr = now.toISOString().replace('T', ' ').substring(0, 16);
+  const dateStr = formatLocalDateTime();
   const batchId = "AQ-PIPE-2026-" + Math.floor(70 + Math.random() * 29);
 
   const isClerkRegistration = appState.auth.user.role === 'clerk' && appState.formData.serviceType !== 'existing_bill';
@@ -1318,8 +1368,7 @@ function completeSuccessfulPayment() {
     const pendingAlert = document.getElementById('payment-error-alert');
     const pendingMsg = document.getElementById('payment-error-msg');
     if (pendingAlert && pendingMsg) {
-<<<<<<< HEAD
-      pendingMsg.textContent = 'ការចុះឈ្មោះបានបញ្ចប់។ សំណើរនេះត្រូវបានកត់ត្រា និងបានជូនដំណឹងទៅ Telegram រួចរាល់។';
+      pendingMsg.textContent = 'ការចុះឈ្មោះបានបញ្ចប់។ សំណើរនេះត្រូវបានកត់ត្រា និងកំពុងរង់ចាំ Admin អនុម័ត។';
       pendingAlert.classList.remove('hidden');
     }
   }
@@ -1330,34 +1379,12 @@ function completeSuccessfulPayment() {
 
     if (!result.success && recordStatus !== 'Pending') {
       console.warn('Invoice notification warning:', result.data || result.reason || 'unknown error');
-      if (errorAlert && errorMsg && !result.data?.telegramSent) {
+      if (errorAlert && errorMsg) {
         errorMsg.textContent = 'Invoice email did not send. Backend server was not reachable.';
         errorAlert.classList.remove('hidden');
       }
-    } else {
-      if (recordStatus !== 'Pending' && errorAlert) errorAlert.classList.add('hidden');
-=======
-      pendingMsg.textContent = 'ការចុះឈ្មោះបានបញ្ចប់។ សំណើរនេះកំពុងរង់ចាំ Admin អនុម័ត មុនពេលផ្ញើវិក្កយបត្រ។';
-      pendingAlert.classList.remove('hidden');
-    }
-  } else sendInvoiceToGmail(record).then((result) => {
-    const errorAlert = document.getElementById('payment-error-alert');
-    const errorMsg = document.getElementById('payment-error-msg');
-
-    if (!result.success) {
-      console.warn('Invoice email failed in backend:', result.data || result.reason || 'unknown error');
-      if (errorAlert && errorMsg) {
-        errorMsg.textContent = 'Invoice email did not send. Please configure the Gmail App Password in the backend before testing live invoices.';
-        errorAlert.classList.remove('hidden');
-      }
-      try {
-        triggerMailtoReceipt(record);
-      } catch (error) {
-        console.warn('Email client fallback was blocked by the browser:', error);
-      }
-    } else {
-      if (errorAlert) errorAlert.classList.add('hidden');
->>>>>>> e1f16b1aa10fa2f5caaa31f9b790a192c4118062
+    } else if (recordStatus !== 'Pending' && errorAlert) {
+      errorAlert.classList.add('hidden');
     }
   });
 
@@ -1467,16 +1494,18 @@ function triggerMailtoReceipt(record) {
   return recipient;
 }
 
-async function sendInvoiceToGmail(record) {
-<<<<<<< HEAD
+async function sendInvoiceToGmail(record, options = {}) {
+  const sendTelegram = options.sendTelegram !== false;
   const recipient = (record && record.email) || appState.formData.email || document.getElementById('emailModalTarget')?.value.trim() || 'customer@aquapure.kh';
+  if (!recipient) return { success: false, reason: 'No recipient email' };
+
   const statusLabel = getStatusLabel(record.status);
   const statusEmoji = record.status === 'Completed' ? '✅' : (record.status === 'Pending' ? '⏳' : '⚠️');
   const safeName = escapeHtml(record.name || 'អតិថិជន');
   const safeAddress = escapeHtml(record.address || 'រាជធានីភ្នំពេញ');
   const safeService = escapeHtml(record.serviceTypeName || record.packageName || 'តភ្ជាប់ទុយោទឹកស្អាត');
   const totalRiel = formatRiel(record.total || record.amount || 0);
-  const dateStr = record.date || new Date().toISOString().replace('T', ' ').substring(0, 16);
+  const dateStr = record.date || formatLocalDateTime();
   const meterId = record.meterId || 'MTR-1082';
   const paymentMethod = record.status === 'Pending' ? 'រង់ចាំ Admin អនុម័ត' : (record.cardBrand ? `${record.cardBrand} •• ${record.cardLast4}` : 'ABA PAY / KHQR');
   const registeredBy = record.registeredBy || (appState.auth.isLoggedIn && appState.auth.user ? `${appState.auth.user.name} (${USER_ROLES[appState.auth.user.role]?.label || appState.auth.user.role})` : 'អតិថិជនចុះឈ្មោះតាមអនឡាញ (Online)');
@@ -1488,7 +1517,6 @@ async function sendInvoiceToGmail(record) {
   🆔 លេខវិក្កយបត្រ: <code>#${record.id || 'N/A'}</code>
   📅 កាលបរិច្ឆេទ: <code>${dateStr}</code>
   👨‍💼 <b>អ្នកចុះឈ្មោះ:</b> <b>${registeredBy}</b>
-  ...
 
 👤 <b>ព័ត៌មានអតិថិជន (Customer Info)</b>
  ├ ឈ្មោះ: <b>${safeName}</b>
@@ -1564,80 +1592,39 @@ async function sendInvoiceToGmail(record) {
     </body>
     </html>
   `;
-=======
-  const recipient = (record && record.email) || appState.formData.email || document.getElementById('emailModalTarget')?.value.trim();
-  if (!recipient) return { success: false, reason: 'No recipient email' };
->>>>>>> e1f16b1aa10fa2f5caaa31f9b790a192c4118062
 
   const payload = {
     to: recipient,
     subject: `Dara Pichmony Digital Invoice - ${record.id}`,
-<<<<<<< HEAD
     html: emailHtml,
     text: `Dara Pichmony Digital Invoice\n\nInvoice: ${record.id}\nCustomer: ${record.name}\nMeter ID: ${record.meterId}\nTotal Paid: ${totalRiel}\nStatus: ${record.status}`,
-    telegramMessage: telegramHtml
+    telegramMessage: telegramHtml,
+    sendTelegram: sendTelegram
   };
 
-  try {
-    let response;
+  const endpoints = ['http://localhost:5001/api/send-invoice', 'http://localhost:5000/api/send-invoice'];
+  let lastError = null;
+
+  for (const endpoint of endpoints) {
     try {
-      response = await fetch('http://localhost:5001/api/send-invoice', {
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
-    } catch (e) {
-      response = await fetch('http://localhost:5000/api/send-invoice', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+
+      const data = await response.json();
+      if (response.ok && data.success) {
+        return { success: true, data, recipient };
+      }
+
+      lastError = { data, response, reason: data.message || 'Notification backend warning' };
+    } catch (error) {
+      lastError = { reason: error.message || String(error) };
     }
-
-    const data = await response.json();
-    if (!response.ok || !data.success) {
-      return { success: false, data, reason: data.message || 'Notification backend warning', recipient };
-=======
-    html: `
-      <div style="font-family: Arial, sans-serif; color: #0f172a; max-width: 640px; margin: 0 auto; background: #f8fafc; padding: 24px; border-radius: 12px;">
-        <h2 style="color:#0284C7; margin-bottom: 12px;">Dara Pichmony Water Station</h2>
-        <p><strong>Invoice:</strong> ${record.id}</p>
-        <p><strong>Customer:</strong> ${record.name}</p>
-        <p><strong>Meter ID:</strong> ${record.meterId}</p>
-        <p><strong>Service:</strong> ${record.serviceTypeName}</p>
-        <p><strong>Address:</strong> ${record.address}</p>
-        <p><strong>Total Paid:</strong> ${formatRiel(record.total)}</p>
-        <p><strong>Status:</strong> ${record.status}</p>
-        <hr />
-        <p>Thank you for using Dara Pichmony direct water supply service.</p>
-      </div>
-    `,
-    text: `Dara Pichmony Digital Invoice\n\nInvoice: ${record.id}\nCustomer: ${record.name}\nMeter ID: ${record.meterId}\nTotal Paid: ${formatRiel(record.total)}\nStatus: ${record.status}`,
-    telegramMessage: `Dara Pichmony New Customer Registration\n\nInvoice: ${record.id}\nCustomer: ${record.name}\nMeter ID: ${record.meterId}\nService: ${record.serviceTypeName}\nTotal: ${formatRiel(record.total)}\nStatus: ${record.status}\nDate: ${record.date}`
-  };
-
-  try {
-    const response = await fetch('http://localhost:5000/api/send-invoice', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-
-    const data = await response.json();
-    if (!response.ok || !data.success) {
-      return { success: false, data, reason: data.message || 'Email backend rejected the request', recipient };
->>>>>>> e1f16b1aa10fa2f5caaa31f9b790a192c4118062
-    }
-
-    return { success: true, data, recipient };
-  } catch (error) {
-<<<<<<< HEAD
-    console.warn('Backend notification request failed:', error);
-=======
-    console.warn('Backend email request failed:', error);
->>>>>>> e1f16b1aa10fa2f5caaa31f9b790a192c4118062
-    return { success: false, reason: error.message, recipient };
   }
+
+  return { success: false, data: lastError?.data, reason: lastError?.reason || 'Notification backend unavailable', recipient };
 }
 
 function sendReceiptEmail() {
@@ -1662,10 +1649,10 @@ function sendReceiptEmail() {
     address: `${appState.formData.address || ''}, ${appState.formData.city || ''}, ${appState.formData.state || ''}`.replace(/, ,/g, ','),
     total: appState.order.total || 0,
     status: 'Completed',
-    date: new Date().toISOString().replace('T', ' ').substring(0, 16)
+    date: formatLocalDateTime()
   };
 
-  sendInvoiceToGmail(record).then((result) => {
+  sendInvoiceToGmail(record, { sendTelegram: false }).then((result) => {
     if (status) {
       status.innerHTML = result.success
         ? `<i data-lucide="check-circle"></i> ផ្ញើវិក្កយបត្រដោយជោគជ័យទៅ <strong>${escapeHtml(result.recipient)}</strong>។`
@@ -1747,7 +1734,7 @@ function approveCustomer(id) {
   if (!customer || customer.status !== 'Pending') return;
   customer.status = 'Completed';
   customer.approvedBy = appState.auth.user.email;
-  customer.approvedAt = new Date().toISOString().replace('T', ' ').substring(0, 16);
+  customer.approvedAt = formatLocalDateTime();
   saveCustomers();
   renderPublicDashboard();
   renderAdminMetrics();
@@ -1768,7 +1755,7 @@ function rejectCustomer(id) {
   if (!confirm(`តើអ្នកចង់បដិសេធការចុះឈ្មោះ ${customer.id} មែនទេ?`)) return;
   customer.status = 'Rejected';
   customer.rejectedBy = appState.auth.user.email;
-  customer.rejectedAt = new Date().toISOString().replace('T', ' ').substring(0, 16);
+  customer.rejectedAt = formatLocalDateTime();
   customer.notes = `${customer.notes || ''} | Rejected by Admin`.trim();
   saveCustomers();
   renderPublicDashboard();
@@ -2128,7 +2115,7 @@ function normalizeImportedCustomer(row) {
     return matchedKey !== undefined ? row[matchedKey] : '';
   };
 
-  const dateValue = get('date', 'invoice date', 'billing date', 'created at') || new Date().toISOString().replace('T', ' ').substring(0, 16);
+  const dateValue = get('date', 'invoice date', 'billing date', 'created at') || formatLocalDateTime();
   const numeric = (value, fallback = 0) => {
     if (value === null || value === undefined || value === '') return fallback;
     const num = Number.parseFloat(String(value).replace(/[^0-9.-]/g, ''));

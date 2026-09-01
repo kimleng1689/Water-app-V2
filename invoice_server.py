@@ -23,24 +23,19 @@ def load_env_file(path='.env'):
 load_env_file()
 
 SMTP_HOST = os.getenv('SMTP_HOST', 'smtp.gmail.com')
-SMTP_PORT = int(os.getenv('SMTP_PORT', '587'))
+SMTP_PORT = int(os.getenv('SMTP_PORT', '465'))
+SMTP_USE_SSL = os.getenv('SMTP_USE_SSL', 'true').strip().lower() in ('1', 'true', 'yes', 'on')
 SMTP_USER = os.getenv('SMTP_USER', '')
 SMTP_PASS = os.getenv('SMTP_PASS', '')
 EMAIL_FROM = os.getenv('EMAIL_FROM', SMTP_USER)
-<<<<<<< HEAD
 PORT = int(os.getenv('PORT', '5001'))
 TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '7333913194:AAGRlt0taKxivhRjbkISqVzWJygOJs3n5pw')
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID', '-1002860171047')
-=======
-PORT = int(os.getenv('PORT', '5000'))
-TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '')
-TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID', '')
->>>>>>> e1f16b1aa10fa2f5caaa31f9b790a192c4118062
 
 
 def send_invoice_email(to_email: str, subject: str, html_body: str, text_body: str):
     if not SMTP_USER or not SMTP_PASS:
-        raise RuntimeError('Gmail credentials are missing. Set SMTP_USER and SMTP_PASS in your environment.')
+        raise RuntimeError('SMTP credentials are missing. Set SMTP_USER and SMTP_PASS in your environment.')
 
     msg = EmailMessage()
     msg['Subject'] = subject
@@ -49,18 +44,38 @@ def send_invoice_email(to_email: str, subject: str, html_body: str, text_body: s
     msg.set_content(text_body or 'Dara Pichmony Digital Invoice')
     msg.add_alternative(html_body or text_body, subtype='html')
 
-    with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
-        server.starttls()
-        server.login(SMTP_USER, SMTP_PASS)
-        server.send_message(msg)
+    errors = []
+    connection_attempts = []
 
-    return True
+    if SMTP_USE_SSL or SMTP_PORT == 465:
+        connection_attempts.append(('SSL', lambda: smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT)))
+    else:
+        connection_attempts.append(('STARTTLS', lambda: smtplib.SMTP(SMTP_HOST, SMTP_PORT)))
+
+    if not SMTP_USE_SSL and SMTP_PORT != 465:
+        connection_attempts.append(('STARTTLS_FALLBACK', lambda: smtplib.SMTP(SMTP_HOST, 587)))
+        connection_attempts.append(('SSL_FALLBACK', lambda: smtplib.SMTP_SSL(SMTP_HOST, 465)))
+
+    for mode, factory in connection_attempts:
+        try:
+            with factory() as server:
+                if mode.startswith('STARTTLS'):
+                    try:
+                        server.starttls()
+                    except Exception:
+                        pass
+                server.login(SMTP_USER, SMTP_PASS)
+                server.send_message(msg)
+            return True
+        except Exception as exc:
+            errors.append(f'{mode}: {exc}')
+
+    raise RuntimeError('SMTP delivery failed: ' + ' | '.join(errors) if errors else 'SMTP delivery failed')
 
 
-<<<<<<< HEAD
 def send_telegram_alert(message: str, reply_markup=None):
-    token = os.getenv('TELEGRAM_BOT_TOKEN', '7333913194:AAGRlt0taKxivhRjbkISqVzWJygOJs3n5pw')
-    chat_id = os.getenv('TELEGRAM_CHAT_ID', '-1002860171047')
+    token = os.getenv('TELEGRAM_BOT_TOKEN', TELEGRAM_BOT_TOKEN)
+    chat_id = os.getenv('TELEGRAM_CHAT_ID', TELEGRAM_CHAT_ID)
     if not token or not chat_id:
         raise RuntimeError('Telegram settings are missing. Set TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID.')
 
@@ -70,73 +85,42 @@ def send_telegram_alert(message: str, reply_markup=None):
     except ValueError:
         chat_id_val = chat_id
 
-    # Default reply markup button if none provided
-    if reply_markup is None:
-        reply_markup = {
-            'inline_keyboard': [
-                [
-                    {'text': '📞 ទំនាក់ទំនងជំនួយ (Support)', 'url': 'https://t.me/moung_kimleng'}
-                ]
-            ]
-        }
+    default_markup = {
+        'inline_keyboard': [[{'text': '📞 ទំនាក់ទំនងជំនួយ (Support)', 'url': 'https://t.me/moung_kimleng'}]]
+    }
+    request_markup = reply_markup or default_markup
 
-    # 1. Try HTML formatting with buttons
-    try:
-        body = {
+    for body in (
+        {
             'chat_id': chat_id_val,
             'text': message,
             'parse_mode': 'HTML',
-            'disable_web_page_preview': True
-        }
-        if reply_markup:
-            body['reply_markup'] = reply_markup
-        payload = json.dumps(body).encode('utf-8')
-        request = urllib.request.Request(url, data=payload, headers={'Content-Type': 'application/json'})
-        with urllib.request.urlopen(request, timeout=15) as response:
-            result = json.loads(response.read().decode('utf-8'))
-        if result.get('ok'):
-            return True
-    except Exception:
-        pass
-
-    # 2. Try HTML formatting without buttons (in case button URL was invalid)
-    try:
-        body = {
+            'disable_web_page_preview': True,
+            'reply_markup': request_markup,
+        },
+        {
             'chat_id': chat_id_val,
             'text': message,
             'parse_mode': 'HTML',
-            'disable_web_page_preview': True
-        }
+            'disable_web_page_preview': True,
+        },
+        {
+            'chat_id': chat_id_val,
+            'text': message,
+            'disable_web_page_preview': True,
+        },
+    ):
         payload = json.dumps(body).encode('utf-8')
         request = urllib.request.Request(url, data=payload, headers={'Content-Type': 'application/json'})
-        with urllib.request.urlopen(request, timeout=15) as response:
-            result = json.loads(response.read().decode('utf-8'))
-        if result.get('ok'):
-            return True
-    except Exception:
-        pass
+        try:
+            with urllib.request.urlopen(request, timeout=15) as response:
+                result = json.loads(response.read().decode('utf-8'))
+            if result.get('ok'):
+                return True
+        except Exception:
+            continue
 
-    # 3. Fallback to plain text
-    payload = json.dumps({
-        'chat_id': chat_id_val,
-=======
-def send_telegram_alert(message: str):
-    if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
-        raise RuntimeError('Telegram settings are missing. Set TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID.')
-
-    url = f'https://api.telegram.org/bot{7333913194:AAGRlt0taKxivhRjbkISqVzWJygOJs3n5pw}/sendMessage'
-    payload = json.dumps({
-        'chat_id': 1002860171047,
->>>>>>> e1f16b1aa10fa2f5caaa31f9b790a192c4118062
-        'text': message,
-        'disable_web_page_preview': True
-    }).encode('utf-8')
-    request = urllib.request.Request(url, data=payload, headers={'Content-Type': 'application/json'})
-    with urllib.request.urlopen(request, timeout=15) as response:
-        result = json.loads(response.read().decode('utf-8'))
-    if not result.get('ok'):
-        raise RuntimeError(result.get('description', 'Telegram rejected the message.'))
-    return True
+    raise RuntimeError('Telegram rejected the message. Please verify the bot token and chat ID.')
 
 
 class InvoiceHandler(BaseHTTPRequestHandler):
@@ -146,7 +130,6 @@ class InvoiceHandler(BaseHTTPRequestHandler):
         self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
         super().end_headers()
 
-<<<<<<< HEAD
     def _send_json_response(self, status_code, data):
         response_bytes = json.dumps(data).encode('utf-8')
         self.send_response(status_code)
@@ -158,16 +141,11 @@ class InvoiceHandler(BaseHTTPRequestHandler):
     def do_OPTIONS(self):
         self.send_response(204)
         self.send_header('Content-Length', '0')
-=======
-    def do_OPTIONS(self):
-        self.send_response(204)
->>>>>>> e1f16b1aa10fa2f5caaa31f9b790a192c4118062
         self.end_headers()
 
     def do_GET(self):
         parsed = urlparse(self.path)
         if parsed.path == '/health':
-<<<<<<< HEAD
             self._send_json_response(200, {'ok': True, 'message': 'Dara Pichmony invoice server is running'})
             return
 
@@ -175,28 +153,8 @@ class InvoiceHandler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         parsed = urlparse(self.path)
-        if parsed.path != '/api/send-invoice' and parsed.path != '/api/send-telegram':
+        if parsed.path not in ('/api/send-invoice', '/api/send-telegram'):
             self._send_json_response(404, {'success': False, 'message': 'Endpoint not found'})
-=======
-            self.send_response(200)
-            self.send_header('Content-Type', 'application/json; charset=utf-8')
-            self.end_headers()
-            self.wfile.write(json.dumps({'ok': True, 'message': 'Dara Pichmony invoice server is running'}).encode('utf-8'))
-            return
-
-        self.send_response(404)
-        self.send_header('Content-Type', 'application/json; charset=utf-8')
-        self.end_headers()
-        self.wfile.write(json.dumps({'ok': False, 'message': 'Not found'}).encode('utf-8'))
-
-    def do_POST(self):
-        parsed = urlparse(self.path)
-        if parsed.path != '/api/send-invoice':
-            self.send_response(404)
-            self.send_header('Content-Type', 'application/json; charset=utf-8')
-            self.end_headers()
-            self.wfile.write(json.dumps({'success': False, 'message': 'Endpoint not found'}).encode('utf-8'))
->>>>>>> e1f16b1aa10fa2f5caaa31f9b790a192c4118062
             return
 
         content_length = int(self.headers.get('Content-Length', 0))
@@ -205,14 +163,7 @@ class InvoiceHandler(BaseHTTPRequestHandler):
         try:
             data = json.loads(raw.decode('utf-8'))
         except Exception:
-<<<<<<< HEAD
             self._send_json_response(400, {'success': False, 'message': 'Invalid JSON payload'})
-=======
-            self.send_response(400)
-            self.send_header('Content-Type', 'application/json; charset=utf-8')
-            self.end_headers()
-            self.wfile.write(json.dumps({'success': False, 'message': 'Invalid JSON payload'}).encode('utf-8'))
->>>>>>> e1f16b1aa10fa2f5caaa31f9b790a192c4118062
             return
 
         to_email = (data.get('to') or '').strip()
@@ -220,71 +171,61 @@ class InvoiceHandler(BaseHTTPRequestHandler):
         html_body = data.get('html', '')
         text_body = data.get('text', '')
         telegram_message = data.get('telegramMessage') or text_body or f'Dara Pichmony invoice: {subject}'
+        send_telegram = str(data.get('sendTelegram', True)).strip().lower() not in ('false', '0', 'no', 'off', 'none', '')
 
-<<<<<<< HEAD
         email_error = None
         telegram_error = None
+        email_attempted = bool(to_email)
+        email_sent = False
 
         if to_email and SMTP_USER and SMTP_PASS:
             try:
                 send_invoice_email(to_email, subject, html_body, text_body)
+                email_sent = True
             except Exception as exc:
                 email_error = str(exc)
+        elif to_email:
+            email_error = 'Company SMTP credentials not set (skipped)'
+        elif parsed.path == '/api/send-invoice':
+            email_error = 'No recipient email provided (skipped)'
+
+        if send_telegram:
+            try:
+                send_telegram_alert(telegram_message)
+                telegram_success = True
+            except Exception as exc:
+                telegram_error = str(exc)
+                telegram_success = False
         else:
-            if not (SMTP_USER and SMTP_PASS):
-                email_error = 'Gmail SMTP credentials not set (skipped)'
-            elif not to_email:
-                email_error = 'No recipient email provided (skipped)'
-=======
-        if not to_email:
-            self.send_response(400)
-            self.send_header('Content-Type', 'application/json; charset=utf-8')
-            self.end_headers()
-            self.wfile.write(json.dumps({'success': False, 'message': 'Recipient email is required'}).encode('utf-8'))
-            return
+            telegram_success = True
+            telegram_error = None
 
-        email_error = None
-        telegram_error = None
-        try:
-            send_invoice_email(to_email, subject, html_body, text_body)
-        except Exception as exc:
-            email_error = str(exc)
->>>>>>> e1f16b1aa10fa2f5caaa31f9b790a192c4118062
-
-        try:
-            send_telegram_alert(telegram_message)
-        except Exception as exc:
-            telegram_error = str(exc)
-
-<<<<<<< HEAD
-        is_success = (telegram_error is None)
+        email_success = (not email_attempted) or email_sent
+        is_success = email_success and telegram_success
         status_code = 200 if is_success else 400
+
+        if not email_attempted:
+            message = 'Telegram notification sent successfully' if telegram_success else f'Telegram notification failed: {telegram_error}'
+        elif email_success and telegram_success:
+            message = 'Email and Telegram notifications sent successfully'
+        elif email_success and not telegram_success:
+            message = f'Email sent successfully, but Telegram failed: {telegram_error}'
+        elif not email_success and telegram_success:
+            message = f'Email failed: {email_error}'
+        else:
+            message = f'Email failed: {email_error}; Telegram failed: {telegram_error}'
+
         self._send_json_response(status_code, {
             'success': is_success,
-            'telegramSent': telegram_error is None,
-            'emailSent': email_error is None and bool(to_email and SMTP_USER and SMTP_PASS),
-            'message': 'Telegram notification sent successfully' if is_success else f'Telegram notification failed: {telegram_error}',
+            'telegramSent': telegram_success,
+            'emailSent': email_success,
+            'message': message,
             'emailError': email_error,
             'telegramError': telegram_error
         })
-=======
-        notification_success = not email_error and not telegram_error
-        self.send_response(200 if notification_success else 207)
-        self.send_header('Content-Type', 'application/json; charset=utf-8')
-        self.end_headers()
-        if notification_success:
-            self.wfile.write(json.dumps({'success': True, 'message': 'Invoice email and Telegram alert sent successfully'}).encode('utf-8'))
-        else:
-            self.wfile.write(json.dumps({
-                'success': False,
-                'message': 'One or more notifications failed',
-                'emailError': email_error,
-                'telegramError': telegram_error
-            }).encode('utf-8'))
 
     def log_message(self, format, *args):
         return
->>>>>>> e1f16b1aa10fa2f5caaa31f9b790a192c4118062
 
 
 if __name__ == '__main__':
