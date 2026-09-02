@@ -1,6 +1,36 @@
 # Dara Pichmony Water Station - Reliable Web Server Runner
 $port = 5500
+$invoicePort = 5001
 $path = $PSScriptRoot
+
+function Test-LocalPort([int]$testPort) {
+    $client = New-Object System.Net.Sockets.TcpClient
+    try {
+        $connection = $client.BeginConnect('127.0.0.1', $testPort, $null, $null)
+        return $connection.AsyncWaitHandle.WaitOne(300) -and $client.Connected
+    } catch {
+        return $false
+    } finally {
+        $client.Close()
+    }
+}
+
+# The front end sends receipts to the local invoice service. Start it with the
+# static site unless it is already running, so registration alerts work too.
+if (-not (Test-LocalPort $invoicePort)) {
+    $pythonPaths = @(
+        (Get-Command python.exe -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source),
+        (Get-ChildItem "$env:LOCALAPPDATA\Programs\Python" -Filter python.exe -Recurse -ErrorAction SilentlyContinue |
+            Select-Object -ExpandProperty FullName)
+    ) | Where-Object { $_ -and (Test-Path $_) }
+    $pythonPath = $pythonPaths | Select-Object -First 1
+    if ($pythonPath) {
+        Start-Process -FilePath $pythonPath -ArgumentList 'invoice_server.py' -WorkingDirectory $path -WindowStyle Hidden
+        Write-Host "Invoice notification service starting on http://localhost:$invoicePort/" -ForegroundColor Cyan
+    } else {
+        Write-Warning 'Python was not found. Email and Telegram notifications will be unavailable.'
+    }
+}
 
 Add-Type -TypeDefinition @"
 using System;

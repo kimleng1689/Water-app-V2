@@ -21,21 +21,19 @@ def load_env_file(path='.env'):
             key_clean = key.strip()
             value_clean = value.strip().strip('"').strip("'")
             os.environ[key_clean] = value_clean
-            if 'SMTP' in key or 'PASS' in key:
-                print(f'[ENV] {key_clean}={value_clean[:30]}...' if len(value_clean) > 30 else f'[ENV] {key_clean}={value_clean}')
 
 
 load_env_file()
 
 SMTP_HOST = os.getenv('SMTP_HOST', 'smtp.gmail.com')
 SMTP_PORT = int(os.getenv('SMTP_PORT', '465'))
-SMTP_USE_SSL = os.getenv('SMTP_USE_SSL', 'true').strip().lower() in ('1', 'true', 'yes', 'on')
+SMTP_USE_SSL = os.getenv('SMTP_USE_SSL', os.getenv('SMTP_SECURE', 'true')).strip().lower() in ('1', 'true', 'yes', 'on')
 SMTP_USER = os.getenv('SMTP_USER', '')
 SMTP_PASS = os.getenv('SMTP_PASS', '')
 EMAIL_FROM = os.getenv('EMAIL_FROM', SMTP_USER)
 PORT = int(os.getenv('PORT', '5001'))
-TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '7333913194:AAGRlt0taKxivhRjbkISqVzWJygOJs3n5pw')
-TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID', '-1002860171047')
+TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '')
+TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID', '')
 
 # Debug: Log loaded credentials at startup
 if SMTP_USER and SMTP_PASS:
@@ -196,15 +194,6 @@ class InvoiceHandler(BaseHTTPRequestHandler):
         email_attempted = bool(to_email)
         email_sent = False
 
-        # Debug logging to file with absolute path
-        try:
-            debug_file = r'e:\Water-app-V2-main\debug_post.txt'
-            with open(debug_file, 'a', encoding='utf-8') as f:
-                f.write(f'[POST] to_email={repr(to_email)}, SMTP_USER={repr(SMTP_USER)}, SMTP_PASS={repr(SMTP_PASS)}, condition={bool(to_email and SMTP_USER and SMTP_PASS)}\n')
-        except Exception as e:
-            with open(r'e:\Water-app-V2-main\debug_error.txt', 'a') as f:
-                f.write(f'Debug write error: {e}\n')
-        
         if to_email and SMTP_USER and SMTP_PASS:
             try:
                 send_invoice_email(to_email, subject, html_body, text_body)
