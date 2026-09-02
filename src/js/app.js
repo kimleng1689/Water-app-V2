@@ -509,11 +509,19 @@ function toggleTheme() {
 }
 
 function updateThemeIcon() {
-  const iconEl = document.getElementById('theme-icon');
-  if (iconEl) {
-    iconEl.setAttribute('data-lucide', appState.currentTheme === 'dark' ? 'sun' : 'moon');
-    lucide.createIcons();
-  }
+  const toggle = document.getElementById('theme-toggle');
+  if (!toggle) return;
+
+  const isDark = appState.currentTheme === 'dark';
+  toggle.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+  toggle.setAttribute('aria-pressed', String(!isDark));
+  toggle.title = isDark ? 'Switch to light mode' : 'Switch to dark mode';
+
+  // Lucide replaces <i> nodes with SVGs. Recreate the placeholder so the
+  // icon changes correctly on every theme switch.
+  const icon = document.getElementById('theme-icon');
+  if (icon) icon.outerHTML = `<i data-lucide="${isDark ? 'sun' : 'moon'}" id="theme-icon"></i>`;
+  if (window.lucide) lucide.createIcons();
 }
 
 // --- Navigation & View Switching ---

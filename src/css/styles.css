@@ -35,6 +35,16 @@
   --shadow-md: 0 8px 20px rgba(0, 0, 0, 0.42);
   --shadow-lg: 0 18px 45px rgba(0, 0, 0, 0.5);
 
+  /* Theme-aware translucent surfaces used over the page image. */
+  --page-image-overlay: linear-gradient(120deg, rgba(5, 7, 11, 0.78), rgba(15, 23, 42, 0.58));
+  --page-scrim: rgba(2, 6, 23, 0.16);
+  --hero-surface: rgba(12, 17, 23, 0.82);
+  --hero-border: rgba(148, 163, 184, 0.18);
+  --media-surface: rgba(8, 15, 24, 0.7);
+  --media-overlay: rgba(15, 23, 42, 0.54);
+  --media-overlay-border: rgba(255, 255, 255, 0.08);
+  --stat-surface: rgba(11, 16, 22, 0.78);
+
   --transition-fast: 0.15s ease;
   --transition-normal: 0.2s ease;
 }
@@ -66,23 +76,16 @@
   --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.05);
   --shadow-md: 0 8px 18px rgba(15, 23, 42, 0.08);
   --shadow-lg: 0 18px 35px rgba(15, 23, 42, 0.12);
-}
 
-/* Sharpen muted labels against the light background without affecting dark mode. */
-[data-theme="light"] .brand-name,
-[data-theme="light"] .brand-tag,
-[data-theme="light"] .purity-status-bar,
-[data-theme="light"] .nav-btn,
-[data-theme="light"] .section-kicker,
-[data-theme="light"] .hero-badge,
-[data-theme="light"] .company-hero-copy,
-[data-theme="light"] .text-muted,
-[data-theme="light"] .text-secondary {
-  text-shadow:
-    0.35px 0 var(--bg-card),
-    -0.35px 0 var(--bg-card),
-    0 0.35px var(--bg-card),
-    0 -0.35px var(--bg-card);
+  /* Keep the photo subtle in light mode so it does not fight the content. */
+  --page-image-overlay: linear-gradient(120deg, rgba(243, 247, 251, 0.88), rgba(238, 245, 255, 0.78));
+  --page-scrim: rgba(255, 255, 255, 0.12);
+  --hero-surface: rgba(255, 255, 255, 0.9);
+  --hero-border: rgba(14, 165, 233, 0.16);
+  --media-surface: rgba(226, 232, 240, 0.78);
+  --media-overlay: rgba(255, 255, 255, 0.8);
+  --media-overlay-border: rgba(15, 23, 42, 0.1);
+  --stat-surface: rgba(255, 255, 255, 0.88);
 }
 
 /* Reset & Base Styles */
@@ -109,9 +112,9 @@ body::before {
   position: fixed;
   inset: -8%;
   background:
-    linear-gradient(120deg, rgba(5, 7, 11, 0.78), rgba(15, 23, 42, 0.58)),
+    var(--page-image-overlay),
     url('https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=1800&q=80') center/cover no-repeat;
-  filter: blur(12px) brightness(0.7) saturate(1.1);
+  filter: blur(12px) brightness(0.82) saturate(1.05);
   transform: scale(1.06);
   z-index: -2;
 }
@@ -120,7 +123,7 @@ body::after {
   content: "";
   position: fixed;
   inset: 0;
-  background: rgba(2, 6, 23, 0.16);
+  background: var(--page-scrim);
   backdrop-filter: blur(2px);
   z-index: -1;
 }
@@ -471,8 +474,8 @@ body::after {
 
 /* ================= PUBLIC DASHBOARD HERO CARD ================= */
 .hero-card {
-  background: rgba(12, 17, 23, 0.82);
-  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: var(--hero-surface);
+  border: 1px solid var(--hero-border);
   border-radius: var(--radius-lg);
   padding: 30px;
   display: grid;
@@ -532,7 +535,7 @@ body::after {
   border-radius: 16px;
   overflow: hidden;
   border: 1px solid rgba(103, 232, 249, 0.18);
-  background: rgba(8, 15, 24, 0.7);
+  background: var(--media-surface);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
 }
 
@@ -568,8 +571,8 @@ body::after {
   gap: 8px;
   padding: 12px 14px;
   border-radius: 12px;
-  background: rgba(15, 23, 42, 0.54);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--media-overlay);
+  border: 1px solid var(--media-overlay-border);
   backdrop-filter: blur(6px);
 }
 
@@ -581,7 +584,7 @@ body::after {
 }
 
 .hero-visual-overlay strong {
-  color: #FFFFFF;
+  color: var(--text-primary);
   font-size: 0.9rem;
 }
 
@@ -610,7 +613,7 @@ body::after {
 }
 
 .hero-stat-box {
-  background: rgba(11, 16, 22, 0.78);
+  background: var(--stat-surface);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   padding: 20px;
